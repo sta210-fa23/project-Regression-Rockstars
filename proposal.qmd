@@ -10,11 +10,15 @@ editor: visual
 
 ```{r}
 #| label: load-pkg-data
+#| warning: false
+#| message: false
 library(tidyverse)
 library(tidymodels)
+library(knitr) 
+library(patchwork)
 # add other packages as needed
 
-# add code to load data
+scoobydoo <- read_csv("data/Scooby-Doo Completed.csv")
 ```
 
 ## Introduction
