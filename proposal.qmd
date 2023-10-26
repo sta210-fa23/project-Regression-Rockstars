@@ -33,11 +33,25 @@ We want to investigate how monster_amount, engagement, and who unmasked the vill
 
 ## Data description
 
-sds...
+The Scooby-Doo data was found on the TidyTuesday database on Github. The data comes from Kaggle and was manually aggregated by user plummye. The user says it took \~1 year to watch every Scooby-Doo iteration and track every variable. Many values are subjective by nature of watching but they tried to keep the data collection consistent. They also used information from ScoobyPedia.
+
+Each observation is an episode from a rendition of the Scooby-Doo franchise. The variables that were measured include the series/episode name, IMDB score, and many details about what happens in the episode itself, such as how many monsters appeared and which character captures/unmasks them.
 
 ## Initial exploratory data analysis
 
-...
+```{r}
+
+scoobydoo <- scoobydoo |>
+  mutate(imdb = as.numeric(imdb))
+
+scoobydoo |>
+  ggplot(aes(x = imdb)) +
+  geom_histogram() +
+  labs(x = "IMDB score",
+       y = "Frequency",
+       title = "Distribution of IMDB Score")
+  theme_minimal()
+```
 
 ## Analysis approach
 
