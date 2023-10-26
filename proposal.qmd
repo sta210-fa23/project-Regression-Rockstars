@@ -23,17 +23,19 @@ scoobydoo <- read_csv("data/Scooby-Doo Completed.csv")
 
 ## Introduction
 
-Scooby-Doo is a popular animated TV show that follows a group of teenagers and a talking Great Dane, Scooby-Doo, as they solve mysteries involving supernatural monsters and creatures. Each episodes typically involves seeking and scheming to find the villain, ending with a dramatic unmasking of the monster. The show focuses on themes of friendship and teamwork. The show aired from 1969 - 1976 originally with many subseires airing and reruns. 
+Scooby-Doo is a popular animated TV show that follows a group of teenagers and a talking Great Dane, Scooby-Doo, as they solve mysteries involving supernatural monsters and creatures. Each episodes typically involves seeking and scheming to find the villain, ending with a dramatic unmasking of the monster. The show focuses on themes of friendship and teamwork. The show aired from 1969 - 1976 originally with many subseires airing and reruns.
 
-We are interested in researching Scoody-Doo IMBD ratings because we all enjoyed Scooby-Doo in our childhoods. We also think that finding certain predictors of animated TV series ratings is useful for the entertainment industry. Specifically anyone looking to create an animated TV series and wanting to know what aspects make up a successful episode. If Scooby-Doo continues to create spin off shows, this information could inform their future episodes. 
+We are interested in researching Scoody-Doo IMBD ratings because we all enjoyed Scooby-Doo in our childhoods. We also think that finding certain predictors of animated TV series ratings is useful for the entertainment industry. Specifically anyone looking to create an animated TV series and wanting to know what aspects make up a successful episode. If Scooby-Doo continues to create spin off shows, this information could inform their future episodes.
 
-What factors explain the variability in the IMBD scores of the Scooby-Doo episodes? 
+What factors explain the variability in the IMBD scores of the Scooby-Doo episodes?
 
 We want to investigate how monster_amount, engagement, and who unmasked the villain (unmask_fred, and so on for all the main group) adequately explain the variability of the IMBD rating. We think that the more monsters the better the rating will be because we think there is more action and suspense in episodes with more monsters. We also think that the higher engagement the worse the rating will be because we think that people are more likely to write a review online when they do not like something than if they do. We think that episodes where Fred unmasked the villian will have a higher rating because we think that he is the leader of the group and thus we think that people will be more drawn to him.
 
 ## Data description
 
-...
+The Scooby-Doo data was found on the TidyTuesday database on Github. The data comes from Kaggle and was manually aggregated by user plummye. The user says it took \~1 year to watch every Scooby-Doo iteration and track every variable. Many values are subjective by nature of watching but they tried to keep the data collection consistent. They also used information from ScoobyPedia.
+
+Each observation is an episode from a rendition of the Scooby-Doo franchise. The variables that were measured include the series/episode name, IMDB score, and many details about what happens in the episode itself, such as how many monsters appeared and which character captures/unmasks them.
 
 ## Initial exploratory data analysis
 
