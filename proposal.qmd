@@ -39,7 +39,9 @@ Each observation is an episode from a rendition of the Scooby-Doo franchise. The
 
 ## Initial exploratory data analysis
 
-```{r}
+```{r response-dist}
+#| warning: false
+#| message: false
 
 scoobydoo <- scoobydoo |>
   mutate(imdb = as.numeric(imdb))
@@ -49,7 +51,70 @@ scoobydoo |>
   geom_histogram() +
   labs(x = "IMDB score",
        y = "Frequency",
-       title = "Distribution of IMDB Score")
+       title = "Distribution of IMDB Score") +
+  theme_minimal()
+```
+
+```{r qualpred-dist}
+
+#| warning: false
+#| message: false
+
+scoobydoo |>
+  ggplot(aes(x = monster.amount)) +
+  geom_histogram(bins=7) +
+  labs(x = "Number of Monsters",
+       y = "Frequency",
+       title = "Distribution of Number of Monsters") +
+  theme_minimal()
+```
+
+```{r catpred-dist}
+
+scoobydoo |>
+  ggplot(aes(x = network)) +
+  geom_bar() +
+  coord_flip() +
+  labs(x = "Network Aired On",
+       y = "Frequency",
+       title = "Distribution of Networks Aired On") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+```{r qual}
+#| warning: false
+
+scoobydoo |>
+  ggplot(aes(x = monster.amount, y = imdb)) +
+  geom_point() +
+  labs(x = "Number of Monsters",
+       y = "IMDB rating",
+       title = "Relationship between Number of Monsters and IMDB Rating") +
+  theme_minimal()
+```
+
+```{r cat}
+
+scoobydoo |>
+  ggplot(aes(x = network, y = imdb)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(x = "Network Aired On",
+       y = "IMDB rating",
+       title = "Relationship between Network Aired On and IMDB Rating") +
+  theme_minimal()
+```
+
+```{r interact}
+#| warning: false
+
+scoobydoo |>
+  ggplot(aes(x = monster.amount, y = imdb, color = network)) +
+  geom_point() +
+  labs(x = "Number of Monsters",
+       y = "IMDB rating",
+       title = "Relationship between Number of Monsters and IMDB Rating") +
   theme_minimal()
 ```
 
