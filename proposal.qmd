@@ -5,6 +5,7 @@ format: pdf
 execute: 
   warning: false
   message: false
+  echo: false
 editor: visual
 ---
 
@@ -33,9 +34,9 @@ We want to investigate how monster_amount, engagement, and who unmasked the vill
 
 ## Data description
 
-The Scooby-Doo data was found on the TidyTuesday database on Github. The data comes from Kaggle and was manually aggregated by user `plummye` in 2021. The curator took roughly one year to watch every Scooby-Doo iteration and track every variable in this dataset. It is noted that some of the values are subjective by nature of watching, but the original data data curator tried to keep the data collection consistent across the different episodes.
+The Scooby-Doo data was found on the [TidyTuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-13/readme.md#scooby-doo-episodes) database on Github. The data originally comes from [Kaggle](https://www.kaggle.com/datasets/williamschooleman/scoobydoo-complete) and was manually aggregated by user [Plummye](https://www.kaggle.com/williamschooleman) in 2021. The curator took roughly one year to watch every Scooby-Doo iteration and track every variable in this dataset. It is noted that some of the values are subjective by nature of watching, but the original data data curator tried to keep the data collection consistent across the different episodes.
 
-Each observation is an episode from a rendition of the Scooby-Doo franchise up until February 25, 2021. The variables that were measured include the series/episode name, IMDB score, and many details about what happens in the episode itself, such as how many monsters appeared and which character captures/unmasks them.
+Each observation is an episode from a rendition of the Scooby-Doo franchise up until February 25, 2021, including movies and specials. The variables that were measured include the series and episode name, engagement, IMDB score, and many details about what happens in each episode itself, such as how many monsters appeared, which character captures and unmasks them, and more.
 
 ## Initial exploratory data analysis
 
@@ -46,29 +47,36 @@ Each observation is an episode from a rendition of the Scooby-Doo franchise up u
 scoobydoo <- scoobydoo |>
   mutate(imdb = as.numeric(imdb))
 
-scoobydoo |>
+p1 <- scoobydoo |>
   ggplot(aes(x = imdb)) +
   geom_histogram() +
   labs(x = "IMDB score",
        y = "Frequency",
-       title = "Distribution of IMDB Score") +
+       title = "IMDB Score") +
   theme_minimal()
 ```
-
-The distribution of IMDB scores is unimodal, roughly symmetrical and has a range from 4 to 10.
 
 ```{r qualpred-dist}
 #| warning: false
 #| message: false
 
-scoobydoo |>
+p2 <- scoobydoo |>
   ggplot(aes(x = monster.amount)) +
   geom_histogram(bins=7) +
   labs(x = "Number of Monsters",
        y = "Frequency",
-       title = "Distribution of Number of Monsters") +
+       title = "Number of Monsters") +
   theme_minimal()
 ```
+
+```{r patchwork}
+#| warning: false
+#| message: false
+
+p1 | p2
+```
+
+The distribution of IMDB scores is unimodal, roughly symmetrical and has a range from 4 to 10.
 
 The distribution of the number of monsters is right skewed with a center around 0.
 
@@ -80,7 +88,7 @@ scoobydoo |>
   coord_flip() +
   labs(x = "Network Aired On",
        y = "Frequency",
-       title = "Distribution of Networks Aired On") +
+       title = "Network Aired On") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
@@ -95,7 +103,7 @@ scoobydoo |>
   geom_point() +
   labs(x = "Number of Monsters",
        y = "IMDB rating",
-       title = "Relationship between Number of Monsters and IMDB Rating") +
+       title = "Number of Monsters and IMDB Rating") +
   theme_minimal()
 ```
 
@@ -109,7 +117,7 @@ scoobydoo |>
   coord_flip() +
   labs(x = "Network Aired On",
        y = "IMDB rating",
-       title = "Relationship between Network Aired On and IMDB Rating") +
+       title = "Network Aired On and IMDB Rating") +
   theme_minimal()
 ```
 
@@ -121,7 +129,7 @@ scoobydoo |>
   geom_point() +
   labs(x = "Number of Monsters",
        y = "IMDB rating",
-       title = "Relationship between Number of Monsters and IMDB Rating") +
+       title = "Number of Monsters and IMDB Rating") +
   theme_minimal()
 ```
 
@@ -133,4 +141,4 @@ We plan to use multiple linear regression for analyze the data.
 
 ## Data dictionary
 
-The data dictionary can be found [here](ADD%20LINK!!!) \[Update the link and remove this note!\]
+The data dictionary can be found [here](data/README.md).
