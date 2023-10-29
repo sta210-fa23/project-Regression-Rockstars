@@ -120,7 +120,9 @@ scoobydoo |>
 
 ## Analysis approach
 
-...
+We are planning to use three potential predictors: monster_amount, a quantitative variable for the number of monster in the episode; engagement, a quantative variable for the number of reviews on IMDB for an episode; and villain_unmask, a categorical variable that takes the value Fred, Daphnie, Velma, Shaggy, and Scooby for the character who unmasks the villain, to predict the IMDB score of each episode, which obviously is a quantitative variable.
+
+We plan to use multiple linear regression for analyze the data.
 
 ## Data dictionary
 
