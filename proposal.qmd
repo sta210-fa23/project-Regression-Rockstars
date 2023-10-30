@@ -186,4 +186,4 @@ We plan to use multiple linear regression for our analysis as we hope to incorpo
 
 ## Data dictionary
 
-The data dictionary can be found [here](data/README.md).
+The data dictionary can be found [here](https://github.com/sta210-fa23/project-Regression-Rockstars/blob/main/data/README.md).
