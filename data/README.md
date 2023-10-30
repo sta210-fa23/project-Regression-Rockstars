@@ -5,7 +5,7 @@ This data was found on the [TidyTuesday Repo](https://github.com/rfordatascience
 ## `Scooby-Doo Completed.csv`
 
 | Variable                 | Class     | Description                                                                                                       |
-|------------------|----------------|---------------------------------------|
+|--------------------------|-----------|-------------------------------------------------------------------------------------------------------------------|
 | index                    | double    | Index ordering based on Scoobypedia                                                                               |
 | series_name              | character | Name of the series in which the episode takes place or in movies' cases the Scoobypedia's grouping classification |
 | network                  | character | Network the TV series takes place in, if it is a movie will use similar grouping as series.name variable          |
