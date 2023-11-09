@@ -40,6 +40,16 @@ This Scooby-Doo data was found on the [TidyTuesday](https://github.com/rfordatas
 
 Each observation represents an episode from a rendition of the Scooby-Doo franchise up until February 25, 2021, including movies and specials. The variables that were measured include the series and episode name (which we will not use as predictor variables), network aired on, IMDB score, engagement (represented by number of reviews on IMDB), and many details about what happened in each episode, such as how many monsters appeared, which character captured and unmasked the monster, the terrain of the episode, and more. There is a mix of both numerical and categorical characteristics.
 
+```{r}
+scoobydoo <- mutate(scoobydoo, unmask_villain = 
+                           ifelse(unmask.fred == TRUE, "Fred",
+                           ifelse(unmask.daphnie == TRUE, "Daphne",
+                           ifelse(unmask.velma == TRUE, "Velma",
+                           ifelse(unmask.shaggy == TRUE, "Shaggy",
+                           ifelse(unmask.scooby == TRUE, "Scooby", 
+                           ifelse(unmask.other == TRUE, "Other", "None")))))))
+```
+
 ## Initial exploratory data analysis
 
 ```{r response-dist}
