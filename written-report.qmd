@@ -224,6 +224,41 @@ wflow1
 
 ```
 
+```{r}
+#| label: recipe2
+
+recipe_2 <- recipe(imdb ~ network + monster.amount + unmask_villain,
+                    data = train_data) |>
+  step_other(network, threshold = 30) |>
+  step_center(monster.amount) |>
+  step_zv(all_predictors()) |>
+  step_interact(terms = ~ monster.amount:network) 
+
+wflow2 <- workflow() |>
+  add_model(model_spec) |>
+  add_recipe(recipe_2)
+
+wflow2
+
+```
+
+```{r}
+#| label: recipe3
+
+recipe_3 <- recipe(imdb ~ network + monster.amount + unmask_villain,
+                    data = train_data) |>
+  step_other(network, threshold = 30) |>
+  step_center(monster.amount) |>
+  step_zv(all_predictors()) 
+
+wflow3 <- workflow() |>
+  add_model(model_spec) |>
+  add_recipe(recipe_3)
+
+wflow3
+
+```
+
 # Results:
 
 ::: callout-important
