@@ -1,7 +1,7 @@
 ---
-title: "Your project title"
-author: "Team Name: Team member 1, Team member 2, Team member 3, Team member 4"
-date: "Update date"
+title: "Analyzing IMBD Scores of Scooby-Doo Episodes"
+author: "Regression Rockstars: James Cai, Steph Reinke, Sarah Wu, Michael Zhou"
+date: "November 16, 2023"
 format: pdf
 execute: 
   warning: false
