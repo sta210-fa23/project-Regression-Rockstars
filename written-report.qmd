@@ -192,6 +192,13 @@ Figure 6: In particular, we tried to see if we could find signs of interactions 
 # Methodology:
 
 ```{r}
+calc_model_stats <- function(x) {
+  glance(extract_fit_parsnip(x)) |>
+    select (adj.r.squared, AIC, BIC)
+}
+```
+
+```{r}
 #| label: split
 
 set.seed(6)
@@ -199,9 +206,11 @@ data_split <- initial_split(scoobydoo, prop = 0.75)
 train_data <- training(data_split)
 test_data <- testing(data_split)
 
+set.seed(6)
+folds <- vfold_cv(train_data, v = 3)
+
 model_spec <- linear_reg() |>
   set_engine("lm")
-
 ```
 
 We've split our Scooby-Doo dataset into training and testing sets, with a 75-25% division. This step is vital for our analysis, as it allows us to build our model on the training set and then assess its performance with an unbiased testing set. By setting a seed, we ensure the reproducibility of our data split, maintaining consistency in our results.
@@ -213,8 +222,9 @@ recipe_1 <- recipe(imdb ~ network + monster.amount + unmask_villain,
                     data = train_data) |>
   step_other(network, threshold = 30) |>
   step_center(monster.amount) |>
-  step_zv(all_predictors()) |>
-  step_interact(terms = ~ monster.amount:unmask_villain) 
+  step_interact(terms = ~ monster.amount:unmask_villain) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
 
 wflow1 <- workflow() |>
   add_model(model_spec) |>
@@ -231,8 +241,9 @@ recipe_2 <- recipe(imdb ~ network + monster.amount + unmask_villain,
                     data = train_data) |>
   step_other(network, threshold = 30) |>
   step_center(monster.amount) |>
-  step_zv(all_predictors()) |>
-  step_interact(terms = ~ monster.amount:network) 
+  step_interact(terms = ~ monster.amount:network) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
 
 wflow2 <- workflow() |>
   add_model(model_spec) |>
@@ -249,7 +260,8 @@ recipe_3 <- recipe(imdb ~ network + monster.amount + unmask_villain,
                     data = train_data) |>
   step_other(network, threshold = 30) |>
   step_center(monster.amount) |>
-  step_zv(all_predictors()) 
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
 
 wflow3 <- workflow() |>
   add_model(model_spec) |>
@@ -257,6 +269,40 @@ wflow3 <- workflow() |>
 
 wflow3
 
+```
+
+```{r}
+#| label: fit the model
+
+fit_rs1 <- wflow1 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+fit_rs2 <- wflow2 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+fit_rs3 <- wflow3 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+map_df (fit_rs1$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow1")
+
+map_df (fit_rs2$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow2")
+
+map_df (fit_rs3$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow3")
 ```
 
 # Results:
