@@ -171,7 +171,8 @@ scoobydoo |>
        subtitle = "Colored by Network Aired On",
        color = "Network Aired On",
        caption = "Figure 6") +
-  theme_minimal()
+  theme_minimal() +
+  facet_wrap(~network)
 ```
 
 Figure 6: In particular, we tried to see if we could find signs of interactions between the number of monsters in an episode and the network that the episode aired on. For example, were there any networks that particularly included more monsters or less monsters in each episode, and how did this affect the IMDB rating? From the scatterplot, it seems that The CW, in particular, included a higher amount of monsters in each episode, but these episodes did not receive the highest ratings and the ratings were pretty consistent throughout. Boomerang seemed to have many episodes with 1 monster and these episodes received a range of ratings from around 6 to 9. CBS seemed to have the most success when it limited the number of monsters to 2. We are interested in further exploring this interaction in our analysis.
