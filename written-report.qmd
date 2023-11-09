@@ -191,7 +191,20 @@ Figure 6: In particular, we tried to see if we could find signs of interactions 
 
 # Methodology:
 
-changes
+```{r}
+set.seed(6)
+data_split <- initial_split(scoobydoo, prop = 0.75)
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+set.seed(6)
+cv_folds <- vfold_cv(train_data, v = 12)
+
+model_spec <- linear_reg() |>
+  set_engine("lm")
+```
+
+We've split our Scooby-Doo dataset into training and testing sets, with a 75-25% division. This step is vital for our analysis, as it allows us to build our model on the training set and then assess its performance with an unbiased testing set. By setting a seed, we ensure the reproducibility of our data split, maintaining consistency in our results.
 
 # Results:
 
