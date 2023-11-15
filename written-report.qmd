@@ -382,12 +382,32 @@ tidy(scooby_fit) |>
   kable(digits=3)
 ```
 
-```{r}
+```{r predictions}
 
-r_sq <- glance(scooby_fit)$r.squared
+train_pred <- predict(scooby_fit, train_data) |>
+  bind_cols(train_data)
+
+test_pred <- predict(scooby_fit, test_data) |>
+  bind_cols(test_data)
 ```
 
-This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it. The model's R squared value is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model.
+```{r rsqrmse}
+
+rsq_train <- rsq(train_pred, truth = imdb, estimate = .pred)
+rsq_test <- rsq(test_pred, truth = imdb, estimate = .pred)
+
+rmse_train <- rmse(train_pred, truth = imdb, estimate = .pred)
+rmse_test <- rmse(test_pred, truth = imdb, estimate = .pred)
+```
+
+This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it.
+
+| Dataset  | R-Squared | RMSE  |
+|----------|-----------|-------|
+| Training | 0.483     | 0.554 |
+| Testing  | 0.506     | 0.423 |
+
+The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is actually surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data.
 
 All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDB scores for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
 
