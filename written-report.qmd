@@ -116,7 +116,7 @@ scoobydoo |>
   print(width = Inf) #print all columns
 ```
 
-```{r patchwork, out.width = "70%"}
+```{r patchwork}
 #| warning: false
 #| message: false
 
@@ -127,7 +127,7 @@ Figure 1: The distribution of our response variable IMDB scores, `imdb`, is unim
 
 Figure 2: The distribution of the number of monsters, `monster.amount`, is unimodal and right skewed. The median is 1 monster and the IQR is 1 monster. The minimum is 0 monsters and the maximum is 19 monsters. There are a few episodes with notably high amounts of monsters, with 5 episodes having 13 or more monsters.
 
-```{r unmask-dist, out.width = "70%"}
+```{r unmask-dist}
 
 scoobydoo |>
   ggplot(aes(x = unmask_villain)) +
@@ -142,7 +142,7 @@ scoobydoo |>
 
 Figure 3: The distribution of who unmasks the villain, `unmask_villain`, shows that in a good majority of the episodes, no one unmasked the villain. However, out of the episodes where a villain was unmasked, Fred and Velma were the main characters that unmasked the villain.
 
-```{r catpred-dist, out.width = "70%"}
+```{r catpred-dist}
 
 scoobydoo |>
   ggplot(aes(x = network)) +
@@ -157,7 +157,7 @@ scoobydoo |>
 
 Figure 4: The distribution of the network the episode aired on, `network`, shows that a good majority of the episodes aired on ABC. There were also considerable amounts of episodes that aired on Cartoon Network and Boomerang, while there are also networks that aired very few episodes, such as TBC and Adult Swim.
 
-```{r qual, out.width = "70%"}
+```{r qual}
 #| warning: false
 
 scoobydoo |>
@@ -181,7 +181,7 @@ scoobydoo |>
 
 Figure 5: The relationship between the number of monsters and the IMDB score is moderate, negative, and linear. Omitting NULL values in `monster.amount` and `imdb`, the correlation is -0.350. It seems that as the number of monsters increase, the IMDB score tends to decrease, on average. However, as seen earlier, the median of the distribution of the number of monsters is 1, so as we increase the number of monsters, there are less and less observations, which makes the relationship between the two variables hard to observe as the number of monsters increase.
 
-```{r cat2, out.width = "70%"}
+```{r cat2}
 #| warning: false
 #| message: false
 
@@ -199,7 +199,7 @@ scoobydoo |>
 
 Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. Since they all overlap, we should consider whether this variable is important for our model.
 
-```{r cat, out.width = "70%"}
+```{r cat}
 #| warning: false
 #| message: false
 
@@ -372,6 +372,24 @@ map_df (fit_rs4$.extracts, ~ .x[[1]] [[1]]) |>
 From these statistics, it is clear that Model #2 (imdb \~ network + monster.amount + unmask_villain with interaction between monster.amount and unmask_villain) had the highest mean adjusted R-squared and the lowest AIC and BIC values. Therefore, we will use this model as our final model.
 
 # Results:
+
+```{r finalmodel}
+
+scooby_fit <- wflow2 |>
+  fit(data = train_data)
+
+tidy(scooby_fit) |>
+  kable(digits=3)
+```
+
+```{r}
+
+r_sq <- glance(scooby_fit)$r.squared
+```
+
+This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it. The model's R squared value is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model.
+
+All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDB scores for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
 
 ::: callout-important
 Before you submit, make sure your code chunks are turned off with `echo: false` and there are no warnings or messages with `warning: false` and `message: false` in the YAML.
