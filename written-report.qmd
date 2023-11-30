@@ -422,25 +422,53 @@ scooby_aug <- data.frame(
 p1 <- ggplot(data = scooby_aug, aes(x = .fitted, y = .resid)) +
   geom_point(alpha = 0.7) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(x = "Predicted values", y = "Residuals")
+  labs(title = "Residuals vs. Predicted Values",
+       x = "Predicted values", 
+       y = "Residuals") +
+  theme_minimal()
 
 p2 <- ggplot(data = scooby_aug, aes(x = network, y = .resid)) +
   geom_point(alpha = 0.7) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(x = "Predicted values", y = "Residuals")
+  labs(title = "Network", 
+       x = "Network", 
+       y = "Residuals") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 p3 <- ggplot(data = scooby_aug, aes(x = monster.amount, y = .resid)) +
   geom_point(alpha = 0.7) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(x = "Predicted values", y = "Residuals")
+  labs(title = "Monster Amount",
+       x = "Monster Amount", 
+       y = "Residuals") +
+  theme_minimal()
 
 p4 <- ggplot(data = scooby_aug, aes(x = unmask_villain, y = .resid)) +
   geom_point(alpha = 0.7) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(x = "Predicted values", y = "Residuals")
+  labs(title = "Unmask Villain", 
+       x = "Unmasked By",
+       y = "Residuals") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-(p1)/
+(p1)
+
 (p2 | p3 | p4)
+```
+
+```{r normality}
+#| warning: false
+#| message: false
+
+scooby_aug |>
+  ggplot(aes(x = .resid)) +
+  geom_histogram() +
+  labs(title = "Distribution of Residuals",
+       x = "Residuals",
+       y = "Frequency") +
+  theme_minimal()
 ```
 
 ```{r predictions}
