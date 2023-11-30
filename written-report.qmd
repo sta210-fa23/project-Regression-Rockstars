@@ -217,22 +217,21 @@ scoobydoo |>
 
 Figure 7: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
 
-```{r interact, out.width = "65%"}
+```{r interaction-eda}
 #| warning: false
+#| message: false
 
 scoobydoo |>
   ggplot(aes(x = monster.amount, y = imdb, color = network)) +
-  geom_point() +
+  geom_point(size = 1) +
   labs(x = "Number of Monsters",
-       y = "IMDb rating",
-       title = "Relationship between Number of Monsters and IMDb Rating",
-       subtitle = "Colored by Network Aired On",
-       color = "Network Aired On",
-       caption = "Figure 6") +
+       y = "IMDb Rating",
+       color = "Network") +
+  facet_wrap(~unmask_villain) +
   theme_minimal()
-```
+  
 
-Figure 8: In particular, we tried to see if we could find signs of interactions between the number of monsters in an episode and the network that the episode aired on. For example, were there any networks that particularly included more monsters or less monsters in each episode, and how did this affect the IMDb rating? From the scatterplot, it seems that The CW, in particular, included a higher amount of monsters in each episode, but these episodes did not receive the highest ratings and the ratings were pretty consistent throughout. Boomerang seemed to have many episodes with 1 monster and these episodes received a range of ratings from around 6 to 9. CBS seemed to have the most success when it limited the number of monsters to 2. We are interested in further exploring this interaction in our analysis.
+```
 
 # Methodology:
 
