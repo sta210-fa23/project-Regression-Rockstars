@@ -165,8 +165,8 @@ Figure 4: The distribution of the network the episode aired on, `network`, shows
 #| warning: false
 
 scoobydoo |>
-  ggplot(aes(x = monster.amount, y = imdb)) +
-  geom_point() +
+  ggplot(aes(x = as.factor(monster.amount), y = imdb)) +
+  geom_boxplot() +
   labs(x = "Number of Monsters",
        y = "IMDb rating",
        title = "Relationship between Number of Monsters and IMDb Rating",
@@ -183,7 +183,7 @@ scoobydoo |>
   summarise(r = cor(monster.amount, imdb)) |> pull()
 ```
 
-Figure 5: The relationship between the number of monsters and the IMDb score is moderate, negative, and linear. Omitting NULL values in `monster.amount` and `imdb`, the correlation is -0.350. It seems that as the number of monsters increase, the IMDb score tends to decrease, on average. However, as seen earlier, the median of the distribution of the number of monsters is 1, so as we increase the number of monsters, there are less and less observations, which makes the relationship between the two variables hard to observe as the number of monsters increase.
+Figure 5: From the distribution of the different boxplots for each number of total monsters included in `monster.amount`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. However, there are still quite a few boxplots that do not overlap with a couple of the other boxplots, signaling that `monster.amount` may have some significant effects.
 
 ```{r cat2}
 #| warning: false
@@ -227,17 +227,20 @@ Figure 7: From the distribution of the different boxplots for each network, we o
 #| eval: false
 
 scoobydoo |>
-  select(monster.amount <= 5)
+  filter(monster.amount < 8 & monster.amount > 0) |>
   ggplot(
-    aes(x = as.factor(monster.amount), fill = unmask_villain)) +
-  geom_bar() +
-  labs(x = "Number of Monsters",
-       y = "Count",
-       fill = "Unmasked by") +
+    aes(x = as.factor(monster.amount), y = imdb, color = unmask_villain)) +
+  geom_point() +
+  labs(title = "Relationship between Number of Monsters and Unmask Villain",
+       subtitle = "for 1-7 total monsters",
+       x = "Number of Monsters",
+       y = "IMDb Rating",
+       Color = "Unmasked by:",
+       caption = "Figure 8") +
   theme_minimal()
-  
-
 ```
+
+Figure 8: Here, we explore the relationship between two of our predictor variables, `monster.amount` and `unmask_villain`. We are only showing a subset of the full relationship between the two variables, since as number of monsters increases, there is less and less data to observe a relationship. From this graph, we become interested in whether there is a significant relationship between these two variables on IMDb score--for example, if there's one monster, is the effect on IMDb score different for whether Fred unmasks the villain or if Velma unmasks the villain?
 
 # Methodology:
 
@@ -462,13 +465,28 @@ p4 <- ggplot(data = scooby_aug, aes(x = unmask_villain, y = .resid)) +
 #| warning: false
 #| message: false
 
-scooby_aug |>
+p5 <- scooby_aug |>
   ggplot(aes(x = .resid)) +
   geom_histogram() +
   labs(title = "Distribution of Residuals",
        x = "Residuals",
        y = "Frequency") +
   theme_minimal()
+```
+
+```{r independence}
+#| warning: false
+
+p6 <- ggplot(scooby_aug, aes(y = .resid, x = 1:nrow(scooby_aug))) +
+  geom_line() +
+  geom_point(size = 0.05) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residuals Over Time",
+       x = "Order of Episodes",
+       y = "Residuals") +
+  theme_minimal()
+
+(p5 | p6)
 ```
 
 ```{r predictions}
