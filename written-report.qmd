@@ -404,6 +404,45 @@ tidy(scooby_fit) |>
   kable(digits = 3)
 ```
 
+```{r}
+
+predictions <- predict(scooby_fit, new_data = train_data, type = "raw")
+residuals <- train_data$imdb - predictions
+
+scooby_aug <- data.frame(
+  .fitted = predictions,
+  .resid = residuals
+) |>
+  bind_cols(train_data)
+```
+
+```{r conditions}
+#| warning: false
+
+p1 <- ggplot(data = scooby_aug, aes(x = .fitted, y = .resid)) +
+  geom_point(alpha = 0.7) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(x = "Predicted values", y = "Residuals")
+
+p2 <- ggplot(data = scooby_aug, aes(x = network, y = .resid)) +
+  geom_point(alpha = 0.7) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(x = "Predicted values", y = "Residuals")
+
+p3 <- ggplot(data = scooby_aug, aes(x = monster.amount, y = .resid)) +
+  geom_point(alpha = 0.7) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(x = "Predicted values", y = "Residuals")
+
+p4 <- ggplot(data = scooby_aug, aes(x = unmask_villain, y = .resid)) +
+  geom_point(alpha = 0.7) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(x = "Predicted values", y = "Residuals")
+
+(p1)/
+(p2 | p3 | p4)
+```
+
 ```{r predictions}
 
 train_pred <- predict(scooby_fit, train_data) |>
@@ -432,7 +471,3 @@ This is the model output for our final model, where we predicted `imdb` with `ne
 The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is actually surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data.
 
 All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDB scores for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
-
-::: callout-important
-Before you submit, make sure your code chunks are turned off with `echo: false` and there are no warnings or messages with `warning: false` and `message: false` in the YAML.
-:::
