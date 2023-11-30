@@ -20,6 +20,10 @@ library(tidymodels)
 library(knitr) 
 library(patchwork)
 library(skimr)
+library(broom)
+library(dplyr)
+library(parsnip)
+library(workflowsets)
 
 scoobydoo <- read_csv("data/Scooby-Doo Completed.csv")
 ```
@@ -220,14 +224,16 @@ Figure 7: From the distribution of the different boxplots for each network, we o
 ```{r interaction-eda}
 #| warning: false
 #| message: false
+#| eval: false
 
 scoobydoo |>
-  ggplot(aes(x = monster.amount, y = imdb, color = network)) +
-  geom_point(size = 1) +
+  select(monster.amount <= 5)
+  ggplot(
+    aes(x = as.factor(monster.amount), fill = unmask_villain)) +
+  geom_bar() +
   labs(x = "Number of Monsters",
-       y = "IMDb Rating",
-       color = "Network") +
-  facet_wrap(~unmask_villain) +
+       y = "Count",
+       fill = "Unmasked by") +
   theme_minimal()
   
 
@@ -395,7 +401,7 @@ scooby_fit <- wflow2 |>
   fit(data = train_data)
 
 tidy(scooby_fit) |>
-  kable(digits=3)
+  kable(digits = 3)
 ```
 
 ```{r predictions}
