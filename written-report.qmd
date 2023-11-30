@@ -40,7 +40,20 @@ This Scooby-Doo data was found on the [TidyTuesday](https://github.com/rfordatas
 
 Each observation represents an episode from a rendition of the Scooby-Doo franchise up until February 25, 2021, including movies and specials. The variables that were measured include the series and episode name (which we will not use as predictor variables), network aired on, IMDb score, engagement (represented by number of reviews on IMDb), and many details about what happened in each episode, such as how many monsters appeared, which character captured and unmasked the monster, the terrain of the episode, and more. There is a mix of both numerical and categorical characteristics.
 
-```{r}
+The unmask variable is in the data as 6 separate columns with each column representing a person, such as `unmask.fred`, `unmask.velma`, etc. Before any of our analysis, we combined these columns into one singular column, `unmask_villain`. We also converted `imdb` from a `character` to a `double` as we want it to be a quantitative value.
+
+Our response variable is `imdb`, while our predictor variables are `unmask_villain`, `monster.amount`, and `network`.
+
+`imdb`: double, represents the score on IMDB
+
+`unmask_villain`: character, represents which character unmasked the villain (if any)
+
+`monster.amount`: double, represents the number of monsters in the episode
+
+`network`: character, represents the network the episode was aired on
+
+```{r cleaning}
+#| warning: false
 scoobydoo <- mutate(scoobydoo, unmask_villain = 
                            ifelse(unmask.fred == TRUE, "Fred",
                            ifelse(unmask.daphnie == TRUE, "Daphne",
@@ -48,16 +61,16 @@ scoobydoo <- mutate(scoobydoo, unmask_villain =
                            ifelse(unmask.shaggy == TRUE, "Shaggy",
                            ifelse(unmask.scooby == TRUE, "Scooby", 
                            ifelse(unmask.other == TRUE, "Other", "None")))))))
+
+scoobydoo <- scoobydoo |>
+  mutate(imdb = as.numeric(imdb))
 ```
 
-## Initial exploratory data analysis
+## Exploratory data analysis
 
 ```{r response-dist}
 #| warning: false
 #| message: false
-
-scoobydoo <- scoobydoo |>
-  mutate(imdb = as.numeric(imdb))
 
 p1 <- scoobydoo |>
   ggplot(aes(x = imdb)) +
@@ -103,7 +116,7 @@ scoobydoo |>
   print(width = Inf) #print all columns
 ```
 
-```{r patchwork, out.width = "70%"}
+```{r patchwork}
 #| warning: false
 #| message: false
 
@@ -114,7 +127,22 @@ Figure 1: The distribution of our response variable IMDb scores, `imdb`, is unim
 
 Figure 2: The distribution of the number of monsters, `monster.amount`, is unimodal and right skewed. The median is 1 monster and the IQR is 1 monster. The minimum is 0 monsters and the maximum is 19 monsters. There are a few episodes with notably high amounts of monsters, with 5 episodes having 13 or more monsters.
 
-```{r catpred-dist, out.width = "70%"}
+```{r unmask-dist}
+
+scoobydoo |>
+  ggplot(aes(x = unmask_villain)) +
+  geom_bar() +
+  coord_flip() +
+  labs(x = "Network Aired On",
+       y = "Frequency",
+       title = "Distribution of Who Unmasked the Villain",
+       caption = "Figure 3") +
+  theme_minimal()
+```
+
+Figure 3: The distribution of who unmasks the villain, `unmask_villain`, shows that in a good majority of the episodes, no one unmasked the villain. However, out of the episodes where a villain was unmasked, Fred and Velma were the main characters that unmasked the villain.
+
+```{r catpred-dist}
 
 scoobydoo |>
   ggplot(aes(x = network)) +
@@ -123,14 +151,13 @@ scoobydoo |>
   labs(x = "Network Aired On",
        y = "Frequency",
        title = "Distribution of Network Aired On",
-       caption = "Figure 3") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+       caption = "Figure 4") +
+  theme_minimal()
 ```
 
-Figure 3: The distribution of the network the episode aired on, `network`, shows that a good majority of the episodes aired on ABC. There were also considerable amounts of episodes that aired on Cartoon Network and Boomerang, while there are also networks that aired very few episodes, such as TBC and Adult Swim.
+Figure 4: The distribution of the network the episode aired on, `network`, shows that a good majority of the episodes aired on ABC. There were also considerable amounts of episodes that aired on Cartoon Network and Boomerang, while there are also networks that aired very few episodes, such as TBC and Adult Swim.
 
-```{r qual, out.width = "70%"}
+```{r qual}
 #| warning: false
 
 scoobydoo |>
@@ -152,9 +179,27 @@ scoobydoo |>
   summarise(r = cor(monster.amount, imdb)) |> pull()
 ```
 
-Figure 4: The relationship between the number of monsters and the IMDb score is moderate, negative, and linear. Omitting NULL values in `monster.amount` and `imdb`, the correlation is -0.350. It seems that as the number of monsters increase, the IMDb score tends to decrease, on average. However, as seen earlier, the median of the distribution of the number of monsters is 1, so as we increase the number of monsters, there are less and less observations, which makes the relationship between the two variables hard to observe as the number of monsters increase.
+Figure 5: The relationship between the number of monsters and the IMDb score is moderate, negative, and linear. Omitting NULL values in `monster.amount` and `imdb`, the correlation is -0.350. It seems that as the number of monsters increase, the IMDb score tends to decrease, on average. However, as seen earlier, the median of the distribution of the number of monsters is 1, so as we increase the number of monsters, there are less and less observations, which makes the relationship between the two variables hard to observe as the number of monsters increase.
 
-```{r cat, out.width = "70%"}
+```{r cat2}
+#| warning: false
+#| message: false
+
+scoobydoo |>
+  ggplot(aes(x = unmask_villain, y = imdb)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(x = "Who Unmasks the Villain",
+       y = "IMDB rating",
+       title = "Relationship between Who Unmasks the Villain and IMDB Rating",
+       caption = "Figure 6"
+       ) +
+  theme_minimal()
+```
+
+Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. Since they all overlap, we should consider whether this variable is important for our model.
+
+```{r cat}
 #| warning: false
 #| message: false
 
@@ -170,7 +215,7 @@ scoobydoo |>
   theme_minimal()
 ```
 
-Figure 5: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
+Figure 7: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
 
 ```{r interact, out.width = "65%"}
 #| warning: false
@@ -187,26 +232,201 @@ scoobydoo |>
   theme_minimal()
 ```
 
-Figure 6: In particular, we tried to see if we could find signs of interactions between the number of monsters in an episode and the network that the episode aired on. For example, were there any networks that particularly included more monsters or less monsters in each episode, and how did this affect the IMDb rating? From the scatterplot, it seems that The CW, in particular, included a higher amount of monsters in each episode, but these episodes did not receive the highest ratings and the ratings were pretty consistent throughout. Boomerang seemed to have many episodes with 1 monster and these episodes received a range of ratings from around 6 to 9. CBS seemed to have the most success when it limited the number of monsters to 2. We are interested in further exploring this interaction in our analysis.
+Figure 8: In particular, we tried to see if we could find signs of interactions between the number of monsters in an episode and the network that the episode aired on. For example, were there any networks that particularly included more monsters or less monsters in each episode, and how did this affect the IMDb rating? From the scatterplot, it seems that The CW, in particular, included a higher amount of monsters in each episode, but these episodes did not receive the highest ratings and the ratings were pretty consistent throughout. Boomerang seemed to have many episodes with 1 monster and these episodes received a range of ratings from around 6 to 9. CBS seemed to have the most success when it limited the number of monsters to 2. We are interested in further exploring this interaction in our analysis.
 
 # Methodology:
 
+Since our response variable is quantitative, we decided to use multiple linear regression for modeling. We also split our original data set into a training (75%) and testing (25%) set to attempt to prevent model overfitting. The predictor variables we were interested in were `network`, `monster.amount`, and `unmask_villain`. From our initial exploratory data analysis, we saw a lot of variation within the relationship between network and IMDB, so we wanted to include `network` as part of our model. The relationships between `monster.amount` and `unmask_villain` each with IMDB seemed less strong, but since we are interested in how these predictor variables affect IMDB as well as any interaction effects that could be made within the three variables, we included these two variables in our model as well. To compare our models, we plan on using 3-fold cross validation, and we also included a function to calculate adjusted R squared, AIC, and BIC, which we will use when choosing our final model.
+
+For each model, we decided to create a recipe, where we performed these steps across all models:
+
+1.  Simplified the number of networks in `networks` by using step_other with a threshold of 30.
+2.  Created dummy variables for all nominal predictors using step_dummy.
+3.  Removed predictors with zero variance using step_zv.
+
+We tested a total of four different models. Since we knew that we wanted to include the variables, `network`, `monster.amount`, and `unmask_villain`, we tested different interactions between combinations of two of the three predictor variables.
+
+Model 1: imdb \~ network + monster.amount + unmask_villain with no interaction terms
+
+Model 2: imdb \~ network + monster.amount + unmask_villain with interaction between monster.amount and unmask_villain
+
+Model 3: imdb \~ network + monster.amount + unmask_villain with interaction between monster.amount and network
+
+Model 4: imdb \~ network + monster.amount + unmask_villain with interaction between unmask_villain and network
+
+```{r function}
+calc_model_stats <- function(x) {
+  glance(extract_fit_parsnip(x)) |>
+    select (adj.r.squared, AIC, BIC)
+}
+```
+
 ```{r}
+#| label: split
+
 set.seed(6)
 data_split <- initial_split(scoobydoo, prop = 0.75)
 train_data <- training(data_split)
 test_data <- testing(data_split)
 
 set.seed(6)
-cv_folds <- vfold_cv(train_data, v = 12)
+folds <- vfold_cv(train_data, v = 3)
 
 model_spec <- linear_reg() |>
   set_engine("lm")
 ```
 
-We've split our Scooby-Doo dataset into training and testing sets, with a 75-25% division. This step is vital for our analysis, as it allows us to build our model on the training set and then assess its performance with an unbiased testing set. By setting a seed, we ensure the reproducibility of our data split, maintaining consistency in our results.
+```{r}
+#| label: recipe2
+
+recipe_2 <- recipe(imdb ~ network + monster.amount + unmask_villain,
+                    data = train_data) |>
+  step_other(network, threshold = 30) |>
+  step_interact(terms = ~ monster.amount:unmask_villain) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+wflow2 <- workflow() |>
+  add_model(model_spec) |>
+  add_recipe(recipe_2)
+```
+
+```{r}
+#| label: recipe3
+
+recipe_3 <- recipe(imdb ~ network + monster.amount + unmask_villain,
+                    data = train_data) |>
+  step_other(network, threshold = 30) |>
+  step_interact(terms = ~ monster.amount:network) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+wflow3 <- workflow() |>
+  add_model(model_spec) |>
+  add_recipe(recipe_3)
+```
+
+```{r}
+#| label: recipe1
+
+recipe_1 <- recipe(imdb ~ network + monster.amount + unmask_villain,
+                    data = train_data) |>
+  step_other(network, threshold = 30) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+wflow1 <- workflow() |>
+  add_model(model_spec) |>
+  add_recipe(recipe_1)
+```
+
+```{r}
+#| label: recipe4
+
+recipe_4 <- recipe(imdb ~ network + monster.amount + unmask_villain,
+                    data = train_data) |>
+  step_other(network, threshold = 30) |>
+  step_interact(terms = ~ unmask_villain:network) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+wflow4 <- workflow() |>
+  add_model(model_spec) |>
+  add_recipe(recipe_4)
+```
+
+```{r results='hide'}
+#| label: fit
+
+fit_rs1 <- wflow1 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+fit_rs2 <- wflow2 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+fit_rs3 <- wflow3 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+fit_rs4 <- wflow4 |>
+  fit_resamples(resamples=folds,
+                control = control_resamples(extract = calc_model_stats))
+
+map_df (fit_rs1$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow1")
+
+map_df (fit_rs2$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow2")
+
+map_df (fit_rs3$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow3")
+
+map_df (fit_rs4$.extracts, ~ .x[[1]] [[1]]) |>
+  summarise (mean_adj_rsq = mean(adj.r.squared),
+             mean_aic = mean(AIC),
+             mean_bic = mean (BIC)) |>
+  kable(digits = 3, caption = "wflow4")
+```
+
+| Model \# | Mean Adjusted R-Squared | Mean AIC | Mean BIC |
+|----------|-------------------------|----------|----------|
+| 1        | 0.269                   | 610.982  | 676.177  |
+| 2        | 0.333                   | 580.208  | 633.100  |
+| 3        | 0.265                   | 606.73   | 649.782  |
+| 4        | 0.303                   | 603.144  | 694.162  |
+
+From these statistics, it is clear that Model #2 (imdb \~ network + monster.amount + unmask_villain with interaction between monster.amount and unmask_villain) had the highest mean adjusted R-squared and the lowest AIC and BIC values. Therefore, we will use this model as our final model.
 
 # Results:
+
+```{r finalmodel}
+
+scooby_fit <- wflow2 |>
+  fit(data = train_data)
+
+tidy(scooby_fit) |>
+  kable(digits=3)
+```
+
+```{r predictions}
+
+train_pred <- predict(scooby_fit, train_data) |>
+  bind_cols(train_data)
+
+test_pred <- predict(scooby_fit, test_data) |>
+  bind_cols(test_data)
+```
+
+```{r rsqrmse}
+
+rsq_train <- rsq(train_pred, truth = imdb, estimate = .pred)
+rsq_test <- rsq(test_pred, truth = imdb, estimate = .pred)
+
+rmse_train <- rmse(train_pred, truth = imdb, estimate = .pred)
+rmse_test <- rmse(test_pred, truth = imdb, estimate = .pred)
+```
+
+This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it.
+
+| Dataset  | R-Squared | RMSE  |
+|----------|-----------|-------|
+| Training | 0.483     | 0.554 |
+| Testing  | 0.506     | 0.423 |
+
+The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is actually surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data.
+
+All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDB scores for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
 
 ::: callout-important
 Before you submit, make sure your code chunks are turned off with `echo: false` and there are no warnings or messages with `warning: false` and `message: false` in the YAML.
