@@ -46,7 +46,7 @@ Each observation represents an episode from a rendition of the Scooby-Doo franch
 
 The unmask variable is in the data as 6 separate columns with each column representing a person, such as `unmask.fred`, `unmask.velma`, etc. Before any of our analysis, we combined these columns into one singular column, `unmask_villain`. We also converted `imdb` from a `character` to a `double` as we want it to be a quantitative value.
 
-Our response variable is `imdb`, while our predictor variables are `unmask_villain`, `monster.amount`, and `network`.
+Our response variable is `imdb`, while after careful consideration, our predictor variables are `unmask_villain`, `monster.amount`, and `network`.
 
 `imdb`: double, represents the rating on IMDb
 
@@ -215,9 +215,9 @@ e6 <- scoobydoo |>
 e5/e6
 ```
 
-Figure 5: From the distribution of the different boxplots for each number of total monsters included in `monster.amount`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. However, there are still quite a few boxplots that do not overlap with a couple of the other boxplots, signaling that `monster.amount` may have some significant effects.
+Figure 5: From the distribution of the different boxplots for each number of total monsters included in `monster.amount`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. However, there are still quite a few boxplots that do not overlap with a couple of the other boxplots, signaling that `monster.amount` may have some significant effects.
 
-Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. Since they all overlap, we should consider whether this variable is important for our model.
+Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. Since they all overlap, we should consider whether this variable is important for our model.
 
 ```{r cat}
 #| warning: false
@@ -268,13 +268,17 @@ Figure 8: Here, we explore the relationship between two of our predictor variabl
 
 # Methodology:
 
-Since our response variable is quantitative, we decided to use multiple linear regression for modeling. We also split our original data set into a training (75%) and testing (25%) set to attempt to prevent model overfitting. When choosing what predictor variables to use, there were many variables that were difficult to use due to the nature of the input, such as `monster.type`, where episodes with multiple monsters had all the types listed as one character string with a comma separating the different types. Other variables did not make sense to use, such as `title` and `culprit.name`, as we do not think variables like these would make good predictors. Other variables, such as `format` and `run.time` naturally had very little variability, and we thought it would be more interesting to create a model with variables that had more variability to be able to make better predictions. Finally, other variables that we were interested in, such as `motive` and `arrested`, had many NULL values, so we excluded them from our model as we wanted to have the most amount of data to work with. Therefore, taking all of these factors into consideration, the predictor variables we settled on were `network`, `monster.amount`, and `unmask_villain`. From our initial exploratory data analysis, we saw a lot of variation within the relationship between network and IMDB, so we wanted to include `network` as part of our model. The relationships between `monster.amount` and `unmask_villain` each with IMDB seemed less strong, but since we are interested in how these predictor variables affect IMDB as well as any interaction effects that could be made within the three variables, we included these two variables in our model as well. To compare our models, we plan on using 3-fold cross validation, and we also included a function to calculate adjusted R squared, AIC, and BIC, which we will use when choosing our final model.
+Since our response variable is quantitative, we decided to use multiple linear regression for modeling. We also split our original data set into a training (75%) and testing (25%) set to attempt to prevent model overfitting.
+
+Given that our response variable is the IMDb rating of each episode, it is natural to choose predictor variables that have variability for each episode, meaning the predictors should characterize each episode. In this specific case, the plot of Scooby Doo can be broadly summarized as a team of friends trying to unmask the villain. Thus it is natural to choose variables such as monster.amount, unmask_villain. We also include network in the list of predictors because there is decent variability for this variable, and intuitively, the network an episode takes place in could affect the IMDb rating because there could be slight stylistic differences in each series for different networks. Additionally, we finalized on the listed variables because there were many variables that were difficult to use due to the nature of the input, such as monster.type, where episodes with multiple monsters had all the types listed as one character string with a comma separating the different types. Other variables did not make sense to use, such as title and culprit.name, as we do not think variables like these would make good predictors.Therefore, taking all of these factors into consideration, the predictor variables we settled on were `network`, `monster.amount`, and `unmask_villain`.
+
+From our initial exploratory data analysis, we saw a lot of variation within the relationship between network and IMDb, so we definitely wanted to include `network` as part of our model. The relationships between `monster.amount` and `unmask_villain` each with IMDb seemed less strong, but since we were still interested in how these predictor variables affected IMDb as well as any interaction effects that could be made within the three variables, we included these two variables in our model as well. To compare our models, we plan on using 3-fold cross validation, and we also included a function to calculate adjusted R squared, AIC, and BIC, which we will use when choosing our final model.
 
 For each model, we decided to create a recipe, where we performed these steps across all models:
 
-1.  Simplified the number of networks in `networks` by using step_other with a threshold of 30.
-2.  Created dummy variables for all nominal predictors using step_dummy.
-3.  Removed predictors with zero variance using step_zv.
+1.  Simplified the number of networks in `networks` by using step_other with a threshold of 30 in hopes of ending with a more parsimonious model.
+2.  Created dummy variables for all nominal predictors using step_dummy, allowing us to use linear regression for the different levels in each nominal predictor.
+3.  Removed predictors with zero variance using step_zv so that our model is only including variables with variability throughout the dataset.
 
 We tested a total of four different models. Since we knew that we wanted to include the variables, `network`, `monster.amount`, and `unmask_villain`, we tested different interactions between combinations of two of the three predictor variables.
 
@@ -411,6 +415,8 @@ map_df (fit_rs4$.extracts, ~ .x[[1]] [[1]]) |>
   kable(digits = 3, caption = "wflow4")
 ```
 
+Here are our results from our 3-fold cross validation:
+
 | Model \# | Mean Adjusted R-Squared | Mean AIC | Mean BIC |
 |----------|-------------------------|----------|----------|
 | 1        | 0.269                   | 610.982  | 676.177  |
@@ -422,6 +428,8 @@ From these statistics, it is clear that Model #2 (imdb \~ network + monster.amou
 
 # Results:
 
+Here is the output from our final model:
+
 ```{r finalmodel, out.width = "75%"}
 
 scooby_fit <- wflow2 |>
@@ -430,6 +438,12 @@ scooby_fit <- wflow2 |>
 tidy(scooby_fit) |>
   kable(digits = 3)
 ```
+
+This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it.
+
+**\[insert coefficient interpretations\^\]**
+
+We proceed by checking model conditions for inference. Specifically, this includes linearity, constant variance, normality, and independence.
 
 ```{r}
 
@@ -481,12 +495,16 @@ p4 <- ggplot(data = scooby_aug, aes(x = unmask_villain, y = .resid)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
-```{r, out.width = "75%"}
+```{r, out.width = "75%", out.height = "75%"}
 
 (p1)
 
 (p2 | p3 | p4)
 ```
+
+From the residuals vs. predicted values plot as well as the three plots of residuals vs. each of our three predictor variables, we observe that there does not seem to be a discernible, non-linear pattern in each of these plots. Therefore, the linearity condition is satisfied.
+
+From the residuals vs. predicted values plot, the vertical spread seems to be approximately constant across the x-axis. Though there are definitely outliers in this plot, it is roughly the same for above and below the line. Therefore, the constant variance condition is satisfied.
 
 ```{r normality}
 #| warning: false
@@ -516,6 +534,12 @@ p6 <- ggplot(scooby_aug, aes(y = .resid, x = 1:nrow(scooby_aug))) +
 (p5 | p6)
 ```
 
+From the histogram showing the distribution of residuals, we observe that the distribution of the residuals is approximately unimodal and symmetric. The sample size of 452 observations in our training data is also sufficiently large to relax this condition if it was not satisfied. Therefore, the normality condition is satisfied.
+
+Since our data is collected over time, we examined a scatterplot of the residuals versus order in which the data were collected. However, no clear pattern was observed in the residuals vs. order of data collection plot. Therefore, the independence condition is satisfied.
+
+Since all four conditions are satisfied, we continue with using our model for predictions in both our training and testing sets.
+
 ```{r predictions}
 
 train_pred <- predict(scooby_fit, train_data) |>
@@ -534,8 +558,6 @@ rmse_train <- rmse(train_pred, truth = imdb, estimate = .pred)
 rmse_test <- rmse(test_pred, truth = imdb, estimate = .pred)
 ```
 
-This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it.
-
 | Dataset  | R-Squared | RMSE  |
 |----------|-----------|-------|
 | Training | 0.483     | 0.554 |
@@ -543,4 +565,6 @@ This is the model output for our final model, where we predicted `imdb` with `ne
 
 The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is actually surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data.
 
-All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDB ratings for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
+# Discussion and Conclusion:
+
+All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDb ratings for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
