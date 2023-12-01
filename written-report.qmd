@@ -26,11 +26,15 @@ scoobydoo <- read_csv("data/Scooby-Doo Completed.csv")
 
 # Introduction and Data:
 
+## Introduction
+
 Scooby-Doo is a popular animated TV show that follows a group of teenagers and a talking Great Dane, Scooby-Doo, as they solve mysteries involving supernatural monsters and creatures. Each episode typically involves seeking and scheming to find the villain, ending with a dramatic unmasking of the monster. The show focuses on themes of friendship and teamwork. The show originally aired on CBS from 1969 - 1976, but there have been many sub-series and reboots since.
 
 We are interested in researching Scoody-Doo IMDb ratings because we all enjoyed Scooby-Doo in our childhoods. We also think that finding certain predictors of animated TV series ratings is useful for the entertainment industry. Specifically, our findings could be useful to anyone looking to create an animated TV series and wanting to know what aspects make up a successful episode. In the paper, "Determining and Evaluating The Most Popular Cartoons Among Children Between 4 and 6 Years of Age" published in 2017, the authors criticize the use of violence, vulgar language, and horror music in Scooby-Doo ([Başal et. al. 2017](https://www.researchgate.net/publication/318108700_Determining_and_Evaluating_The_Most_Popular_Cartoons_Among_Children_Between_4_and_6_Years_of_Age)), yet we can't ignore the huge impact and popularity of Scooby-Doo. In 2013, Scooby-Doo was ranked the fifth greatest cartoon of all time ([TVGuide 2013](https://www.foxnews.com/entertainment/tv-guide-magazines-60-greatest-cartoons-of-all-time)). If Scooby-Doo continues to create spin-off shows, our findings about what makes a successful episode could inform their future episodes as well.
 
 Our primary research question is what factors best explain the variability in the IMDb ratings of Scooby-Doo episodes? In other words, what elements tend to contribute to a successful episode? We want to investigate how various predictor variables in the dataset like `monster.amount`, character that unmasks the villain (`unmask.fred`, and such for all five characters part of the main group), `network`, and more, adequately explain the variability in IMDb ratings. We hypothesize that episodes with a higher monster count will have a better rating since we think that there is more action and suspense in episodes with more monsters. We think that episodes where Fred unmasked the villain will have a higher rating since he is the leader of the group and thus, we think that people will be more drawn to him. Finally, we think that episodes that aired on Cartoon Network will have a better rating since we think that Cartoon Network can generate more positive responses since they specialize in cartoons and are pretty well-known. In our analysis, we would like to explore the interaction between these variables as well as consider other predictors in the dataset.
+
+## Data
 
 This Scooby-Doo data was found on the [TidyTuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-13/readme.md#scooby-doo-episodes) database on Github. The data originally came from [Kaggle](https://www.kaggle.com/datasets/williamschooleman/scoobydoo-complete) and was manually aggregated by user [Plummye](https://www.kaggle.com/williamschooleman) in 2021. The curator took roughly one year to watch every Scooby-Doo iteration and track every variable in this dataset. It is noted that some of the values are subjective by the nature of watching, but the original data curator tried to keep the data collection consistent across the different episodes.
 
@@ -62,7 +66,7 @@ scoobydoo <- scoobydoo |>
   mutate(imdb = as.numeric(imdb))
 ```
 
-## Exploratory data analysis
+## Exploratory Data Analysis
 
 ```{r response-dist}
 #| warning: false
@@ -168,7 +172,7 @@ Figure 4: The distribution of the network the episode aired on, `network`, shows
 
 e5 <- scoobydoo |>
   ggplot(aes(x = as.factor(monster.amount), y = imdb)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.size = 0.5) +
   labs(x = "Number of Monsters",
        y = "IMDb Rating",
        title = "Relationship between Number of Monsters and IMDb Rating",
@@ -194,10 +198,10 @@ scoobydoo |>
 
 e6 <- scoobydoo |>
   ggplot(aes(x = unmask_villain, y = imdb)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.size = 0.5) +
   labs(x = "Who Unmasks the Villain",
        y = "IMDB Rating",
-       title = "Relationship between Who Unmasks the Villain and IMDB Rating",
+       title = "Relationship between who Unmasks the Villain and IMDB Rating",
        caption = "Figure 6"
        ) +
   theme_minimal() +
@@ -206,7 +210,7 @@ e6 <- scoobydoo |>
   theme(axis.title.y = element_text(size=8))
 ```
 
-```{r plots, out.width = "70%"}
+```{r plots, out.width = "75%"}
 #| warning: false
 
 e5/e6
@@ -214,7 +218,7 @@ e5/e6
 
 Figure 5: From the distribution of the different boxplots for each number of total monsters included in `monster.amount`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. However, there are still quite a few boxplots that do not overlap with a couple of the other boxplots, signaling that `monster.amount` may have some significant effects.
 
-Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. Since they all overlap, we should consider whether this variable is important for our model.
+Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that all of the interquartile intervals of the boxplots overlap, so we should consider whether this variable is important for our model. There are also quite a lot of outliers, especially if no one unmasks the villain.
 
 ```{r cat}
 #| warning: false
@@ -222,11 +226,11 @@ Figure 6: From the distribution of the different boxplots for each character inc
 
 e7 <- scoobydoo |>
   ggplot(aes(x = network, y = imdb)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.size = 0.5) +
   labs(x = "Network Aired On",
        y = "IMDb Rating",
        title = "Network and IMDb Rating",
-       caption = "Figure 5"
+       caption = "Figure 7"
        ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 6)) +
@@ -259,12 +263,12 @@ e8 <- scoobydoo |>
   theme(axis.title.y = element_text(size=8))
 ```
 
-```{r plots2, out.width= "83%"}
+```{r plots2, out.width= "75%"}
 
 e7 | e8
 ```
 
-Figure 7: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
+Figure 7: From the distribution of the different boxplots for each network, we again observe that many of the interquartile intervals of the boxplots overlap. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
 
 Figure 8: Here, we explore the relationship between two of our predictor variables, `monster.amount` and `unmask_villain`. We are only showing a subset of the full relationship between the two variables, since as the number of monsters increases, there is less and less data to observe a relationship. From this graph, we become interested in whether there is a significant relationship between these two variables on IMDb rating--for example, if there's one monster, is the effect on IMDb rating different for whether Fred unmasks the villain or if Velma unmasks the villain?
 
@@ -272,9 +276,11 @@ Figure 8: Here, we explore the relationship between two of our predictor variabl
 
 Since our response variable is quantitative, we decided to use multiple linear regression for modeling. We also split our original data set into a training (75%) and testing (25%) set to attempt to prevent model overfitting.
 
-Given that our response variable is the IMDb rating of each episode, it is natural to choose predictor variables that have variability for each episode, meaning the predictors should characterize each episode. In this specific case, the plot of Scooby Doo can be broadly summarized as a team of friends trying to unmask the villain. Thus it is natural to choose variables such as `monster.amount` and `unmask_villain`. We also include `network` in the list of predictors because there is decent variability for this variable, and intuitively, the network an episode takes place in could affect the IMDb rating because there could be slight stylistic differences in each series for different networks. Additionally, we settled on the listed variables because many variables were difficult to use due to the nature of the input, such as `monster.type`, where episodes with multiple monsters had all the types listed as one character string with a comma separating the different types. Other variables did not make sense to use, such as `title` and `culprit.name`, as we do not think variables like these would make good predictors. Therefore, taking all of these factors into consideration, the predictor variables we settled on were `network`, `monster.amount`, and `unmask_villain`.
+Given that our response variable is the IMDb rating of each episode, it is natural to choose predictor variables that have variability for each episode, meaning the predictors should characterize each episode. In this specific case, the plot of Scooby-Doo can be broadly summarized as a team of friends trying to unmask the villain. Thus it is natural to choose variables such as `monster.amount` and `unmask_villain`. We also include `network` in the list of predictors because there is decent variability for this variable, and intuitively, the network an episode takes place in could affect the IMDb rating because there could be slight stylistic differences in each series for different networks. Additionally, we settled on the listed variables because many other variables were difficult to use due to the nature of the input, such as `monster.type`, where episodes with multiple monsters had all the types listed as one character string with a comma separating the different types. Other variables did not make sense to use, such as `title` and `culprit.name`, as we do not think variables like these would make good predictors. Therefore, taking all of these factors into consideration, the predictor variables we settled on were `network`, `monster.amount`, and `unmask_villain`.
 
-From our initial exploratory data analysis, we saw a lot of variation within the relationship between network and IMDb, so we definitely wanted to include `network` as part of our model. The relationships between `monster.amount` and `unmask_villain` each with IMDb seemed less strong, but since we were still interested in how these predictor variables affected IMDb as well as any interaction effects that could be made within the three variables, we included these two variables in our model as well. To compare our models, we plan on using 3-fold cross-validation, and we also included a function to calculate adjusted R squared, AIC, and BIC, which we will use when choosing our final model.
+From our initial exploratory data analysis, we saw a lot of variation within the relationship between `network` and `imdb`, so we definitely wanted to include `network` as part of our model. The relationships between `monster.amount` and `unmask_villain` each with `imdb` seemed less strong, but since we were still interested in how these predictor variables affected the IMDb rating, we added them to our model. We were also interested if there was a relationship between any of the predictor variables, so we included interaction effects as well.
+
+To compare our models, we plan on using 3-fold cross-validation, and we also included a function to calculate adjusted R squared, AIC, and BIC, which we will use when choosing our final model. We will check model conditions in the Results section after choosing our final model through these statistics.
 
 For each model, we decided to create a recipe, where we performed these steps across all models:
 
@@ -282,7 +288,7 @@ For each model, we decided to create a recipe, where we performed these steps ac
 2.  Created dummy variables for all nominal predictors using step_dummy, allowing us to use linear regression for the different levels in each nominal predictor.
 3.  Removed predictors with zero variance using step_zv so that our model only includes variables with variability throughout the dataset.
 
-We tested a total of four different models. Since we knew that we wanted to include the variables, `network`, `monster.amount`, and `unmask_villain`, we tested different interactions between combinations of two of the three predictor variables.
+We tested a total of four different models. Since we knew that we wanted to include the variables, `network`, `monster.amount`, and `unmask_villain`, we tested the different interactions between combinations of two of the three predictor variables as shown here.
 
 Model 1: imdb \~ network + monster.amount + unmask_villain with no interaction terms
 
@@ -417,7 +423,7 @@ map_df (fit_rs4$.extracts, ~ .x[[1]] [[1]]) |>
   kable(digits = 3, caption = "wflow4")
 ```
 
-Here are the results from our 3-fold cross validation:
+Here are the results from our 3-fold cross validation on each of the four different models:
 
 | Model \# | Mean Adjusted R-Squared | Mean AIC | Mean BIC |
 |----------|-------------------------|----------|----------|
@@ -426,7 +432,7 @@ Here are the results from our 3-fold cross validation:
 | 3        | 0.265                   | 606.73   | 649.782  |
 | 4        | 0.303                   | 603.144  | 694.162  |
 
-From these statistics, it is clear that Model #2 (imdb \~ network + monster.amount + unmask_villain with an interaction between monster.amount and unmask_villain) had the highest mean adjusted R-squared and the lowest AIC and BIC values. Therefore, we will use this model as our final model.
+We want a model with the highest mean adjusted R-squared value and the lowest mean AIC and BIC values. From these statistics, it is clear that Model #2 (imdb \~ network + monster.amount + unmask_villain with an interaction between monster.amount and unmask_villain) had the highest mean adjusted R-squared and the lowest AIC and BIC values. Therefore, we will use this model as our final model.
 
 # Results:
 
@@ -443,7 +449,7 @@ tidy(scooby_fit) |>
 
 This is the model output for our final model, where we predicted `imdb` with `network`, `monster.amount`, and `unmask_villain`, with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 7 of 18 predictor variables have significant values when using a threshold of 0.05.
 
-Most of the low p-values in coefficients come from `network`. The baseline category for `network` in our model was ABC. When the network is Boomerang, Cartoon Network, CBS, or The WB, we expect the IMDb rating to increase by 0.438, 0.686, 0.691, and 0.202 points, respectively, compared to if the network is ABC, holding all other variables constant. Episodes on other networks (which we set as having 30 or fewer total episodes) were expected to have a lower IMDb rating, being 0.872 points less than an episode on ABC. This shows that episodes that aired on bigger networks tended to receive better ratings.
+Most of the low p-values in coefficients come from `network`. The baseline category for `network` in our model was ABC. When the network is Boomerang, Cartoon Network, CBS, or The WB, we expect the IMDb rating to increase by 0.438, 0.686, 0.691, and 0.202 points, respectively, compared to if the network is ABC, holding all other variables constant. Episodes on other networks (which we set as having 30 or fewer total episodes) were expected to have a lower IMDb rating, being 0.872 points less than an episode on ABC. This shows that episodes that aired on bigger networks tended to receive better ratings. However, it is important to note that the coefficient for The WB did not have a significant p-value.
 
 We also had a significant p-value for `monster.amount`. From the output, we observe that for each additional monster in the episode, we expect the IMDb rating to decrease by -0.146 points, holding all other variables constant. This shows that as monsters increase, episodes tend to not fare as well. Interestingly, `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. We find that in episodes where Velma unmasks the villain, we expect the IMDb rating to increase by 0.038 points for every additional monster, holding all other variables constant.
 
@@ -574,7 +580,7 @@ p6 <- ggplot(scooby_aug, aes(y = .resid, x = 1:nrow(scooby_aug))) +
 
 From the residuals vs. predicted values plot as well as the three plots of residuals vs. each of our three predictor variables, we observe that there does not seem to be a discernible, non-linear pattern in each of these plots. Therefore, the linearity condition is satisfied.
 
-From the residuals vs. predicted values plot, the vertical spread seems to be approximately constant across the x-axis. Though there are outliers in this plot, it is roughly the same for above and below the line. Therefore, the constant variance condition is satisfied.
+From the residuals vs. predicted values plot, the vertical spread seems to be approximately constant across the x-axis. Though there are outliers in this plot, it is roughly the same above and below the 0-line. Therefore, the constant variance condition is satisfied.
 
 From the histogram showing the distribution of residuals, we observe that the distribution of the residuals is approximately unimodal and symmetric. The sample size of 452 observations in our training data is also sufficiently large to relax this condition if it was not satisfied. Therefore, the normality condition is satisfied.
 
@@ -605,16 +611,16 @@ rmse_test <- rmse(test_pred, truth = imdb, estimate = .pred)
 | Training | 0.483     | 0.554 |
 | Testing  | 0.506     | 0.423 |
 
-The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable is explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data. These values show that our model does not have the best predictive power, as only around half of the variation is accounted for. However, considering that we only took into account 3 total variables, the model performs pretty decent.
+The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable is explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554 points, while it is 0.423 points for the testing data. These values show that our model might not have the best predictive power, as only around half of the variation is accounted for. However, considering that we only took into account 3 total variables to predict IMDb rating, the model performs pretty well.
 
 # Discussion and Conclusion:
 
-All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDb ratings for different Scooby-Doo episodes. We observe the variable, `unmask_villain`, as well as its interaction with `monster.amount`, carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retained it in our final model.
+All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDb ratings for different Scooby-Doo episodes. Episodes containing fewer monsters as well as episodes airing on networks like CBS, Cartoon Network, and Boomerang tended to have the highest IMDb ratings. We observe that the variable, `unmask_villain`, as well as its interaction with `monster.amount`, carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retained it in our final model.
 
-According to the interpretation of the coefficients in the Results section, the model results do not match our initial hypothesis on the `monster.amount`, if only considering significant coefficients. Increasing the amount of monsters in an episode seems to decrease the IMDb rating. Similarly, our hypothesis about the IMDb rating being higher when Fred unmasked the villain didn't hold either. However, our hypothesis about Cartoon Network almost holds, as it sees the second-highest increase in IMDb rating, falling short of CBS.
+According to the interpretation of the coefficients in the Results section, the model results do not align with our initial hypothesis on the `monster.amount`, if only considering significant coefficients. Increasing the amount of monsters in an episode seems to decrease the IMDb rating. Similarly, our hypothesis about the IMDb rating being higher when Fred unmasked the villain didn't hold either. Though not having significant coefficients, it seemed that episodes where Daphne unmasked the villain did better. However, our hypothesis about Cartoon Network almost holds, as it sees the second-highest increase in IMDb rating, falling short of CBS.
 
-Placing the comparison of the results with our intuition and initial hypotheses in a larger context, we conclude that IMDb ratings for any TV series or movie are not easily predicted as people's preferences are completely subjective; thus, more variables are needed in the model to account for such variability. This naturally leads to a discussion of the limitations of this particular dataset and our analysis methods.
+Placing the comparison of these results with our intuition and initial hypotheses in a larger context, we conclude that IMDb ratings for any TV series or movie are not easily predicted as people's preferences are completely subjective; thus, more variables are needed in the model to account for such variability. This naturally leads to a discussion of the limitations of this particular dataset and our analysis methods.
 
 Since our data was collected by one individual while watching each episode, there was likely some human error. The individual likely missed some details in episodes, leading to not entirely accurate data. This could be mitigated by a more robust data collection process. For example, more than one person could watch each episode and their results could be compared or averaged. The dataset also lacks more informative variables that can quantify information from each episode.
 
-One limitation of our analysis is that we used many of the variables as they naturally appeared in the dataset. It could have been helpful to mean-center our numeric variable or transform it in some way to see how that changes its relationship with our response variable. Another limitation is the limited range of variables we chose from. Our data had a vast amount of possible predictor variables to choose from, but many were difficult to use due to the nature of the input. So, it is likely we missed a relationship between some of the variables we did not use and IMDb ratings. In the future, we would like to explore the other variables in the dataset and try to find an even better model that predicts IMDb ratings. For future work, we also think it would be helpful to explore data from other TV shows and attempt to find broader predictor variables that might be able to predict IMDb ratings across various animated TV shows. If we were to do this, our findings could aid future TV shows, not just Scooby-Doo, when considering what elements to add to their show that would bring higher ratings.
+One limitation of our analysis is that we used many of the variables as they naturally appeared in the dataset. It could have been helpful to mean-center our numeric variable or transform it in some way to see how that changes its relationship with our response variable. Another limitation is the limited range of variables we chose from. Our data had a vast amount of possible predictor variables to choose from, but many were difficult to use due to the nature of the input. So, it is likely we missed a relationship between some of the variables we did not use and each episode's IMDb ratings. In the future, we would like to explore the other variables in the dataset and try to find an even better model that predicts IMDb ratings. For future work, we also think it would be helpful to explore data from other TV shows and attempt to find broader predictor variables that might be able to predict IMDb ratings across various animated TV shows. If we were to do this, our findings could aid future animated TV shows, and not just more reboots of Scooby-Doo, in considering what elements to add to their show that would bring higher IMDb ratings.
