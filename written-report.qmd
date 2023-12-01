@@ -76,14 +76,15 @@ scoobydoo <- scoobydoo |>
 #| warning: false
 #| message: false
 
-p1 <- scoobydoo |>
+e1 <- scoobydoo |>
   ggplot(aes(x = imdb)) +
   geom_histogram() +
   labs(x = "IMDb score",
        y = "Frequency",
-       title = "IMDb Score",
+       title = "IMDb Rating",
        caption = "Figure 1") +
-  theme_minimal()
+  theme_minimal() +
+    theme(plot.title = element_text(size=10))
 ```
 
 ```{r response-stats}
@@ -100,14 +101,15 @@ scoobydoo |>
 #| warning: false
 #| message: false
 
-p2 <- scoobydoo |>
+e2 <- scoobydoo |>
   ggplot(aes(x = monster.amount)) +
   geom_histogram(bins=7) +
   labs(x = "Number of Monsters",
        y = "Frequency",
        title = "Number of Monsters",
        caption = "Figure 2") +
-  theme_minimal()
+  theme_minimal() +
+    theme(plot.title = element_text(size=10))
 ```
 
 ```{r qualpred-stats}
@@ -120,11 +122,11 @@ scoobydoo |>
   print(width = Inf) #print all columns
 ```
 
-```{r patchwork}
+```{r patchwork, out.width = "75%"}
 #| warning: false
 #| message: false
 
-p1 | p2
+e1 | e2
 ```
 
 Figure 1: The distribution of our response variable IMDb scores, `imdb`, is unimodal and roughly symmetrical. The mean is 7.278 and the standard deviation is 0.732. The minimum is 4.2 and the maximum is 9.6. There does not seem to be any significant outliers.
@@ -133,45 +135,53 @@ Figure 2: The distribution of the number of monsters, `monster.amount`, is unimo
 
 ```{r unmask-dist}
 
-scoobydoo |>
+e3 <- scoobydoo |>
   ggplot(aes(x = unmask_villain)) +
   geom_bar() +
-  coord_flip() +
   labs(x = "Network Aired On",
        y = "Frequency",
        title = "Distribution of Who Unmasked the Villain",
        caption = "Figure 3") +
-  theme_minimal()
+  theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme(plot.title = element_text(size=10))
 ```
-
-Figure 3: The distribution of who unmasks the villain, `unmask_villain`, shows that in a good majority of the episodes, no one unmasked the villain. However, out of the episodes where a villain was unmasked, Fred and Velma were the main characters that unmasked the villain.
 
 ```{r catpred-dist}
 
-scoobydoo |>
+e4 <- scoobydoo |>
   ggplot(aes(x = network)) +
   geom_bar() +
-  coord_flip() +
   labs(x = "Network Aired On",
        y = "Frequency",
        title = "Distribution of Network Aired On",
        caption = "Figure 4") +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme(plot.title = element_text(size=10))
 ```
+
+```{r showgraphs, out.width = "75%"}
+
+e3 | e4
+```
+
+Figure 3: The distribution of who unmasks the villain, `unmask_villain`, shows that in a good majority of the episodes, no one unmasked the villain. However, out of the episodes where a villain was unmasked, Fred and Velma were the main characters that unmasked the villain.
 
 Figure 4: The distribution of the network the episode aired on, `network`, shows that a good majority of the episodes aired on ABC. There were also considerable amounts of episodes that aired on Cartoon Network and Boomerang, while there are also networks that aired very few episodes, such as TBC and Adult Swim.
 
 ```{r qual}
 #| warning: false
 
-scoobydoo |>
+e5 <- scoobydoo |>
   ggplot(aes(x = as.factor(monster.amount), y = imdb)) +
   geom_boxplot() +
   labs(x = "Number of Monsters",
-       y = "IMDb rating",
+       y = "IMDb Rating",
        title = "Relationship between Number of Monsters and IMDb Rating",
-       caption = "Figure 4") +
-  theme_minimal()
+       caption = "Figure 5") +
+  theme_minimal() +
+    theme(plot.title = element_text(size=10))
 ```
 
 ```{r correlation}
@@ -183,23 +193,29 @@ scoobydoo |>
   summarise(r = cor(monster.amount, imdb)) |> pull()
 ```
 
-Figure 5: From the distribution of the different boxplots for each number of total monsters included in `monster.amount`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. However, there are still quite a few boxplots that do not overlap with a couple of the other boxplots, signaling that `monster.amount` may have some significant effects.
-
 ```{r cat2}
 #| warning: false
 #| message: false
 
-scoobydoo |>
+e6 <- scoobydoo |>
   ggplot(aes(x = unmask_villain, y = imdb)) +
   geom_boxplot() +
-  coord_flip() +
   labs(x = "Who Unmasks the Villain",
-       y = "IMDB rating",
+       y = "IMDB Rating",
        title = "Relationship between Who Unmasks the Villain and IMDB Rating",
        caption = "Figure 6"
        ) +
-  theme_minimal()
+  theme_minimal() +
+    theme(plot.title = element_text(size=10))
 ```
+
+```{r plots, out.width = "75%"}
+#| warning: false
+
+e5/e6
+```
+
+Figure 5: From the distribution of the different boxplots for each number of total monsters included in `monster.amount`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. However, there are still quite a few boxplots that do not overlap with a couple of the other boxplots, signaling that `monster.amount` may have some significant effects.
 
 Figure 6: From the distribution of the different boxplots for each character included in `unmask_villain`, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDB ratings are quite similar. Since they all overlap, we should consider whether this variable is important for our model.
 
@@ -207,26 +223,24 @@ Figure 6: From the distribution of the different boxplots for each character inc
 #| warning: false
 #| message: false
 
-scoobydoo |>
+e7 <- scoobydoo |>
   ggplot(aes(x = network, y = imdb)) +
   geom_boxplot() +
-  coord_flip() +
   labs(x = "Network Aired On",
        y = "IMDb rating",
        title = "Relationship between Network Aired On and IMDb Rating",
        caption = "Figure 5"
        ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    theme(plot.title = element_text(size=10))
 ```
-
-Figure 7: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
 
 ```{r interaction-eda}
 #| warning: false
 #| message: false
-#| eval: false
 
-scoobydoo |>
+e8 <- scoobydoo |>
   filter(monster.amount < 8 & monster.amount > 0) |>
   ggplot(
     aes(x = as.factor(monster.amount), y = imdb, color = unmask_villain)) +
@@ -235,10 +249,20 @@ scoobydoo |>
        subtitle = "for 1-7 total monsters",
        x = "Number of Monsters",
        y = "IMDb Rating",
-       Color = "Unmasked by:",
+       color = "Unmasked by:",
        caption = "Figure 8") +
-  theme_minimal()
+  theme_minimal() +
+    theme(plot.title = element_text(size=10)) +
+  theme(plot.subtitle = element_text(size=8))
 ```
+
+```{r plots2}
+
+e7
+e8
+```
+
+Figure 7: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
 
 Figure 8: Here, we explore the relationship between two of our predictor variables, `monster.amount` and `unmask_villain`. We are only showing a subset of the full relationship between the two variables, since as number of monsters increases, there is less and less data to observe a relationship. From this graph, we become interested in whether there is a significant relationship between these two variables on IMDb score--for example, if there's one monster, is the effect on IMDb score different for whether Fred unmasks the villain or if Velma unmasks the villain?
 
@@ -398,7 +422,7 @@ From these statistics, it is clear that Model #2 (imdb \~ network + monster.amou
 
 # Results:
 
-```{r finalmodel}
+```{r finalmodel, out.width = "75%"}
 
 scooby_fit <- wflow2 |>
   fit(data = train_data)
@@ -455,6 +479,9 @@ p4 <- ggplot(data = scooby_aug, aes(x = unmask_villain, y = .resid)) +
        y = "Residuals") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+```{r, out.width = "75%"}
 
 (p1)
 
@@ -474,7 +501,7 @@ p5 <- scooby_aug |>
   theme_minimal()
 ```
 
-```{r independence}
+```{r independence, out.width = "75%"}
 #| warning: false
 
 p6 <- ggplot(scooby_aug, aes(y = .resid, x = 1:nrow(scooby_aug))) +
