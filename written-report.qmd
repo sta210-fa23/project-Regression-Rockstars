@@ -26,15 +26,11 @@ scoobydoo <- read_csv("data/Scooby-Doo Completed.csv")
 
 # Introduction and Data:
 
-## Introduction
-
-Scooby-Doo is a popular animated TV show that follows a group of teenagers and a talking Great Dane, Scooby-Doo, as they solve mysteries involving supernatural monsters and creatures. Each episode typically involves seeking and scheming to find the villain, ending with a dramatic unmasking of the monster. The show focuses on themes of friendship and teamwork. The show originally aired on CBS from 1969 - 1976, but there has been many subseries and reboots since.
+Scooby-Doo is a popular animated TV show that follows a group of teenagers and a talking Great Dane, Scooby-Doo, as they solve mysteries involving supernatural monsters and creatures. Each episode typically involves seeking and scheming to find the villain, ending with a dramatic unmasking of the monster. The show focuses on themes of friendship and teamwork. The show originally aired on CBS from 1969 - 1976, but there has been many sub-series and reboots since.
 
 We are interested in researching Scoody-Doo IMDb ratings because we all enjoyed Scooby-Doo in our childhoods. We also think that finding certain predictors of animated TV series ratings is useful for the entertainment industry. Specifically, our findings could be useful to anyone looking to create an animated TV series and wanting to know what aspects make up a successful episode. In the paper, "Determining and Evaluating The Most Popular Cartoons Among Children Between 4 and 6 Years of Age" published in 2017, the authors criticize the use of violence, vulgar language, and horror music in Scooby-Doo ([Başal et. al. 2017](https://www.researchgate.net/publication/318108700_Determining_and_Evaluating_The_Most_Popular_Cartoons_Among_Children_Between_4_and_6_Years_of_Age)), yet we can't ignore the huge impact and popularity of Scooby-Doo. In 2013, Scooby-Doo was ranked the fifth greatest cartoon of all time ([TVGuide 2013](https://www.foxnews.com/entertainment/tv-guide-magazines-60-greatest-cartoons-of-all-time)). If Scooby-Doo continues to create spin-off shows, our findings about what makes a successful episode could inform their future episodes as well.
 
 Our primary research question is what factors best explain the variability in the IMDb ratings of Scooby-Doo episodes? In other words, what elements tend to contribute to a successful episode? We want to investigate how various predictor variables in the dataset like `monster.amount`, character that unmasks the villain (`unmask.fred`, and such for all five characters part of the main group), `network`, and more, adequately explain the variability in IMDb ratings. We hypothesize that episodes with a higher monster count will have a better rating, since we think that there is more action and suspense in episodes with more monsters. We think that episodes where Fred unmasked the villain will have a higher rating since he is the leader of the group and thus, we think that people will be more drawn to him. Finally, we think that episodes that aired on Cartoon Network will have a better rating, since we think that Cartoon Network has the ability to generate more positive responses since they specialize in cartoons and are pretty well-known. In our analysis, we would like to explore the interaction between these variables as well as consider other predictors in the dataset.
-
-## Data
 
 This Scooby-Doo data was found on the [TidyTuesday](https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-07-13/readme.md#scooby-doo-episodes) database on Github. The data originally comes from [Kaggle](https://www.kaggle.com/datasets/williamschooleman/scoobydoo-complete) and was manually aggregated by user [Plummye](https://www.kaggle.com/williamschooleman) in 2021. The curator took roughly one year to watch every Scooby-Doo iteration and track every variable in this dataset. It is noted that some of the values are subjective by nature of watching, but the original data data curator tried to keep the data collection consistent across the different episodes.
 
@@ -80,7 +76,9 @@ e1 <- scoobydoo |>
        title = "IMDb Rating",
        caption = "Figure 1") +
   theme_minimal() +
-    theme(plot.title = element_text(size=10))
+    theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8))
 ```
 
 ```{r response-stats}
@@ -101,11 +99,13 @@ e2 <- scoobydoo |>
   ggplot(aes(x = monster.amount)) +
   geom_histogram(bins=7) +
   labs(x = "Number of Monsters",
-       y = "Frequency",
        title = "Number of Monsters",
        caption = "Figure 2") +
   theme_minimal() +
-    theme(plot.title = element_text(size=10))
+    theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8)) +
+  theme(axis.title.y = element_blank())
 ```
 
 ```{r qualpred-stats}
@@ -118,29 +118,20 @@ scoobydoo |>
   print(width = Inf) #print all columns
 ```
 
-```{r patchwork, out.width = "75%"}
-#| warning: false
-#| message: false
-
-e1 | e2
-```
-
-Figure 1: The distribution of our response variable IMDb ratings, `imdb`, is unimodal and roughly symmetrical. The mean is 7.278 and the standard deviation is 0.732. The minimum is 4.2 and the maximum is 9.6. There does not seem to be any significant outliers.
-
-Figure 2: The distribution of the number of monsters, `monster.amount`, is unimodal and right skewed. The median is 1 monster and the IQR is 1 monster. The minimum is 0 monsters and the maximum is 19 monsters. There are a few episodes with notably high amounts of monsters, with 5 episodes having 13 or more monsters.
-
 ```{r unmask-dist}
 
 e3 <- scoobydoo |>
   ggplot(aes(x = unmask_villain)) +
   geom_bar() +
-  labs(x = "Network Aired On",
-       y = "Frequency",
-       title = "Distribution of Who Unmasked the Villain",
+  labs(x = "Character",
+       title = "Unmasked By",
        caption = "Figure 3") +
   theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  theme(plot.title = element_text(size=10))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 6)) +
+  theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8)) +
+  theme(axis.title.y = element_blank())
 ```
 
 ```{r catpred-dist}
@@ -148,19 +139,25 @@ e3 <- scoobydoo |>
 e4 <- scoobydoo |>
   ggplot(aes(x = network)) +
   geom_bar() +
-  labs(x = "Network Aired On",
-       y = "Frequency",
-       title = "Distribution of Network Aired On",
+  labs(x = "Network",
+       title = "Network",
        caption = "Figure 4") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  theme(plot.title = element_text(size=10))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 5)) +
+  theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8)) +
+  theme(axis.title.y = element_blank())
 ```
 
-```{r showgraphs, out.width = "75%"}
+```{r showgraphs, out.width = "102%"}
 
-e3 | e4
+e1 | e2 | e3 | e4
 ```
+
+Figure 1: The distribution of our response variable IMDb ratings, `imdb`, is unimodal and roughly symmetrical. The mean is 7.278 and the standard deviation is 0.732. The minimum is 4.2 and the maximum is 9.6. There does not seem to be any significant outliers.
+
+Figure 2: The distribution of the number of monsters, `monster.amount`, is unimodal and right skewed. The median is 1 monster and the IQR is 1 monster. The minimum is 0 monsters and the maximum is 19 monsters. There are a few episodes with notably high amounts of monsters, with 5 episodes having 13 or more monsters.
 
 Figure 3: The distribution of who unmasks the villain, `unmask_villain`, shows that in a good majority of the episodes, no one unmasked the villain. However, out of the episodes where a villain was unmasked, Fred and Velma were the main characters that unmasked the villain.
 
@@ -177,7 +174,9 @@ e5 <- scoobydoo |>
        title = "Relationship between Number of Monsters and IMDb Rating",
        caption = "Figure 5") +
   theme_minimal() +
-    theme(plot.title = element_text(size=10))
+  theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8)) 
 ```
 
 ```{r correlation}
@@ -202,10 +201,12 @@ e6 <- scoobydoo |>
        caption = "Figure 6"
        ) +
   theme_minimal() +
-    theme(plot.title = element_text(size=10))
+  theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8))
 ```
 
-```{r plots, out.width = "75%"}
+```{r plots, out.width = "70%"}
 #| warning: false
 
 e5/e6
@@ -223,13 +224,15 @@ e7 <- scoobydoo |>
   ggplot(aes(x = network, y = imdb)) +
   geom_boxplot() +
   labs(x = "Network Aired On",
-       y = "IMDb rating",
-       title = "Relationship between Network Aired On and IMDb Rating",
+       y = "IMDb Rating",
+       title = "Network and IMDb Rating",
        caption = "Figure 5"
        ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-    theme(plot.title = element_text(size=10))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 6)) +
+      theme(plot.title = element_text(size=8)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8))
 ```
 
 ```{r interaction-eda}
@@ -241,21 +244,24 @@ e8 <- scoobydoo |>
   ggplot(
     aes(x = as.factor(monster.amount), y = imdb, color = unmask_villain)) +
   geom_point() +
-  labs(title = "Relationship between Number of Monsters and Unmask Villain",
+  labs(title = "Number of Monsters and Unmask Villain",
        subtitle = "for 1-7 total monsters",
        x = "Number of Monsters",
        y = "IMDb Rating",
        color = "Unmasked by:",
        caption = "Figure 8") +
   theme_minimal() +
-    theme(plot.title = element_text(size=10)) +
-  theme(plot.subtitle = element_text(size=8))
+    theme(plot.title = element_text(size=8)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8))
 ```
 
-```{r plots2}
+```{r plots2, out.width= "83%"}
 
-e7
-e8
+e7 | e8
 ```
 
 Figure 7: From the distribution of the different boxplots for each network, we observe that many of the interquartile intervals of the boxplots overlap, meaning that their IMDb ratings are quite similar. It seems that Cartoon Network generally received the best ratings, while Warner Bros. Picture and The CW generally received the worst ratings. We also observe a few outliers in the distribution of IMDb ratings for some networks, such as Warner Home Video and ABC. Many of the networks have IMDb ratings that are pretty symmetrical, as the line representing the median is close to the middle of the box, such as in the case of CBS and The CW, but some are pretty skewed, such as in the case of Syndication, The WB, and Warner Bros. Picture.
@@ -461,50 +467,65 @@ scooby_aug <- data.frame(
 #| warning: false
 
 p1 <- ggplot(data = scooby_aug, aes(x = .fitted, y = .resid)) +
-  geom_point(alpha = 0.7) +
+  geom_point(size = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuals vs. Predicted Values",
        x = "Predicted values", 
        y = "Residuals") +
-  theme_minimal()
+  theme_minimal() +
+    theme(plot.title = element_text(size=6)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=6)) +
+  theme(axis.title.y = element_text(size=6))
 
 p2 <- ggplot(data = scooby_aug, aes(x = network, y = .resid)) +
-  geom_point(alpha = 0.7) +
+  geom_point(size = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Network", 
        x = "Network", 
        y = "Residuals") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 3.5)) +
+      theme(plot.title = element_text(size=6)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=6)) +
+  theme(axis.title.y = element_text(size=6)) +
+  theme(axis.text.x = element_text(size = 4))
 
 p3 <- ggplot(data = scooby_aug, aes(x = monster.amount, y = .resid)) +
-  geom_point(alpha = 0.7) +
+  geom_point(size = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Monster Amount",
-       x = "Monster Amount", 
-       y = "Residuals") +
-  theme_minimal()
+       x = "Monster Amount") +
+  theme_minimal() +
+      theme(plot.title = element_text(size=6)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=6)) +
+  theme(axis.title.y = element_text(size=6)) +
+  theme(axis.title.y = element_blank()) +
+  theme(axis.text.x = element_text(size = 4))
 
 p4 <- ggplot(data = scooby_aug, aes(x = unmask_villain, y = .resid)) +
-  geom_point(alpha = 0.7) +
+  geom_point(size = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Unmask Villain", 
-       x = "Unmasked By",
-       y = "Residuals") +
+       x = "Unmasked By") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 4)) +
+  theme(plot.title = element_text(size=6)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=6)) +
+  theme(axis.title.y = element_text(size=6)) +
+  theme(axis.title.y = element_blank())
 ```
-
-```{r, out.width = "75%", out.height = "75%"}
-
-(p1)
-
-(p2 | p3 | p4)
-```
-
-From the residuals vs. predicted values plot as well as the three plots of residuals vs. each of our three predictor variables, we observe that there does not seem to be a discernible, non-linear pattern in each of these plots. Therefore, the linearity condition is satisfied.
-
-From the residuals vs. predicted values plot, the vertical spread seems to be approximately constant across the x-axis. Though there are definitely outliers in this plot, it is roughly the same for above and below the line. Therefore, the constant variance condition is satisfied.
 
 ```{r normality}
 #| warning: false
@@ -516,7 +537,13 @@ p5 <- scooby_aug |>
   labs(title = "Distribution of Residuals",
        x = "Residuals",
        y = "Frequency") +
-  theme_minimal()
+  theme_minimal() +
+    theme(plot.title = element_text(size=6)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8))
 ```
 
 ```{r independence, out.width = "75%"}
@@ -529,10 +556,25 @@ p6 <- ggplot(scooby_aug, aes(y = .resid, x = 1:nrow(scooby_aug))) +
   labs(title = "Residuals Over Time",
        x = "Order of Episodes",
        y = "Residuals") +
-  theme_minimal()
-
-(p5 | p6)
+  theme_minimal() +
+    theme(plot.title = element_text(size=6)) +
+  theme(plot.subtitle = element_text(size=6)) +
+  theme(legend.title = element_text(size=6)) +
+  theme(legend.text = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=8)) +
+  theme(axis.title.y = element_text(size=8))
 ```
+
+```{r, out.width = "102%"}
+
+(p1
+/
+(p2 | p3 | p4) | (p6/p5))
+```
+
+From the residuals vs. predicted values plot as well as the three plots of residuals vs. each of our three predictor variables, we observe that there does not seem to be a discernible, non-linear pattern in each of these plots. Therefore, the linearity condition is satisfied.
+
+From the residuals vs. predicted values plot, the vertical spread seems to be approximately constant across the x-axis. Though there are definitely outliers in this plot, it is roughly the same for above and below the line. Therefore, the constant variance condition is satisfied.
 
 From the histogram showing the distribution of residuals, we observe that the distribution of the residuals is approximately unimodal and symmetric. The sample size of 452 observations in our training data is also sufficiently large to relax this condition if it was not satisfied. Therefore, the normality condition is satisfied.
 
@@ -563,16 +605,16 @@ rmse_test <- rmse(test_pred, truth = imdb, estimate = .pred)
 | Training | 0.483     | 0.554 |
 | Testing  | 0.506     | 0.423 |
 
-The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is actually surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data.
+The model's R-squared value on the training data is approximately 0.483, which means that approximately 48.3 percent of the variation in the response variable explained by our regression model. However, the model's R-squared value on the testing data is approximately 0.506, which is actually surprisingly higher than the value for our training data. Since the R-squared values are relatively close, we are not too concerned about our model having overfit the data. The same trend is observed in our RMSE values, as the RMSE for the training data is 0.554, while it is 0.423 for the testing data. These values show that our model does not have the predictive power, as only around half of the variation is accounted for. However, considering that we only took into account 3 total variables, the model actually performs pretty decent.
 
 # Discussion and Conclusion:
 
-All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDb ratings for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retain it in our final model.
+All in all, from our model, we see that `network` and `monster.amount` seem to be significant when predicting IMDb ratings for different Scooby-Doo episodes. We observe that the variable, `unmask_villain`, as well as the interaction of it with `monster.amount` carry very few significant coefficients, so we may reconsider including this variable as a predictor variable in future models. However, for this project, since we were especially interested in using `unmask_villain` as a predictor variable, we retained it in our final model.
 
-According to the interpretation of the coefficients in the Results section, the model results do not match our hypothesis on the `monster.amount` if only looking significant coefficients. Similarly, our hypothesis about the IMDb rating be higher when Fred unmasked the villain didn't hold either. However, the hypothesis about Cartoon.Network almost holds, as it sees the second highest increase in IMDb rating, falling short to CBS.
+According to the interpretation of the coefficients in the Results section, the model results do not match our initial hypothesis on the `monster.amount`, if only considering significant coefficients. Increasing the amount of monsters in an episode seems to actually decrease the IMDb rating. Similarly, our hypothesis about the IMDb rating being higher when Fred unmasked the villain didn't hold either. However, our hypothesis about Cartoon Network almost holds, as it sees the second highest increase in IMDb rating, falling short to CBS.
 
-Placing the comparison of the results with our intuition/hypothesis in a larger context, we conclude that IMDb ratings for any TV series or movies are not easily predicted as people's preferences are completely subjective; thus, more variables are needed in the model to account for such variability. This brings out the limitations of this particular dataset and our analysis method.
+Placing the comparison of the results with our intuition and initial hypotheses in a larger context, we conclude that IMDb ratings for any TV series or movies are not easily predicted as people's preferences are completely subjective; thus, more variables are needed in the model to account for such variability. This naturally leads to a discussion of the limitations of this particular dataset and our analysis methods.
 
-Since our data was collected by one individual while watching each episode, there was likely some human error. The individual likely missed some details in episodes leading to not entirely accurate data. This could be mitigated by a more robust data collection process. For example more than one person could watch each episode and their results could be compared. The dataset also lacks more informative variables that is able to quantify information from each episode.
+Since our data was collected by one individual while watching each episode, there was likely some human error. The individual likely missed some details in episodes, leading to not entirely accurate data. This could be mitigated by a more robust data collection process. For example, more than one person could watch each episode and their results could be compared or averaged. The dataset also lacks more informative variables that is able to quantify information from each episode.
 
-One limitation for our analysis is that the relationship between our chosen predictors and IMDb ratings may be non linear. To explore this we could transform monster.amount our only numeric predictor to account for this non linear relationship. Another limitation is the variables we chose. Our data has a vast set of possible predictor variables to choose from. Thus we likely missed a relationship between the some of the variables we did not use and IMDb ratings. In the future we want to explore the other variables in the data set and try to find a model that better predicts IMDb ratings.
+One limitation for our analysis is that we we used many of the variables as they naturally appeared in the dataset. It could have been helpful and beneficial to possibly mean center our numeric variable or transform them in another way to explore their relationship. Another limitation is the limited range of variables we chose from. Our data had a vast amount of possible predictor variables to choose from, but there were many that were difficult to use due to the nature of the input. So, it is likely we missed a relationship between some of the variables we did not use and IMDb ratings. In the future, we would like to explore the other variables in the dataset, and try to find an even better model that predicts IMDb ratings. For future work, we also think it would be helpful to explore data from other TV shows and attempt to find broader predictor variables that might be able to predict IMDb ratings across various different TV shows. If we were to do this, our findings could aid future TV shows, not just Scooby-Doo, when considering what elements to add to their show that would bring higher ratings.
