@@ -20,10 +20,6 @@ library(tidymodels)
 library(knitr) 
 library(patchwork)
 library(skimr)
-library(broom)
-library(dplyr)
-library(parsnip)
-library(workflowsets)
 
 scoobydoo <- read_csv("data/Scooby-Doo Completed.csv")
 ```
@@ -439,9 +435,13 @@ tidy(scooby_fit) |>
   kable(digits = 3)
 ```
 
-This is the model output for our final model, where we predicted `imdb` with `network`+ `monster.amount` + `unmask_villain` with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 8 of 18 predictor variables have significant values when using a threshold of 0.05. Most of the low p-values in coefficients come from `network`. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it.
+This is the model output for our final model, where we predicted `imdb` with `network`, `monster.amount`, and `unmask_villain`, with an interaction between `monster.amount` and `unmask_villain`. From the p-values of the coefficients, we see that 7 of 18 predictor variables have significant values when using a threshold of 0.05.
 
-**\[insert coefficient interpretations\^\]**
+Most of the low p-values in coefficients come from `network`. The baseline category for network in our model was ABC. When network is Boomerang, Cartoon Network, CBS, or The WB, we expect the IMDb rating to increase by 0.438, 0.686, 0.691, and 0.202 points, respectively, compared to if the network is ABC, holding all other variables constant. Episodes on other networks (which we set as having 30 or less total episodes) were expected to have a lower IMDb rating, being 0.872 points less than an episode on ABC. This shows that episodes that aired on bigger networks tended to receive better ratings.
+
+We also had a significant p-value for `monster.amount`. From the output, we observe that for each additional monster in the episode, we expect the IMDb rating to decrease by -0.146 points, holding all other variables constant. This shows that as monsters increase, episodes tend to not fare as well. It is interesting that `monster.amount_x_unmask_villainVelma` was significant while none of the other interactions were. We find that in episodes where Velma unmasks the villain, we expect the IMDb rating to increase by 0.038 points for every additional monster, holding all other variables constant.
+
+Another significant coefficient value that is worthy to note is `unmask_villain_None`. From our earlier EDA, we did see that 'None' was the largest category for `unmask_villain`, so it is possible the coefficient value is significant only because there was a large amount of data for it. However, these episodes tend to not fare very well as we expect the IMDb rating to be -0.310 points lower if no one unmasks the villain compared to episodes where Daphne unmasks the villain, holding all other variables constant. Though all the other `unmask_vilain` coefficients were not significant, we notice that episodes where Daphne (our baseline) unmasks the villain seem to fare the best as all the coefficients, though not significant, are negative.
 
 We proceed by checking model conditions for inference. Specifically, this includes linearity, constant variance, normality, and independence.
 
